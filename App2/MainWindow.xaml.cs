@@ -1,0 +1,152 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Microsoft.Kinect;
+using System.IO;
+
+namespace App2
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+
+        private KinectSensor sensor;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void WindowLoaded(object sender, RoutedEventArgs e)
+        {
+            foreach (var potentialSensor in KinectSensor.KinectSensors)
+            {
+                if (potentialSensor.Status == KinectStatus.Connected)
+                {
+                    this.sensor = potentialSensor;
+                    break;
+                }
+            }
+
+            if (null != this.sensor)
+            {
+                ColourStream colourStream = new ColourStream();
+                Image.Source = colourStream.StartColourStream(sensor);
+                Button0.Background = Brushes.Gray;
+
+            }
+            if (null == this.sensor)
+            {
+                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+            }
+        }
+
+        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (null != this.sensor)
+            {
+                this.sensor.Stop();
+            }
+        }
+
+        private void ColourStreamClick(object sender, RoutedEventArgs e)
+        {
+            if (null == this.sensor)
+            {
+                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+            }
+            else
+            {
+                ColourStream colourStream = new ColourStream();
+                Image.Source = colourStream.StartColourStream(sensor);
+                Button0.Background = Brushes.Gray;
+                Button1.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+                Button2.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+            }
+        }
+
+        private void DepthStreamClick(object sender, RoutedEventArgs e)
+        {
+            if (null == this.sensor)
+            {
+                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+            }
+            else
+            {
+                DepthStream depthStream = new DepthStream();
+                Image.Source = depthStream.StartDepthStream(sensor);
+                Button1.Background = Brushes.Gray;
+                Button0.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+                Button2.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+            }
+        }
+
+        private void SkeletonStreamClick(object sender, RoutedEventArgs e)
+        {
+            if (null == sensor)
+            {
+                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+            }
+            else
+            {
+                SkeletonStream skeletonStream = new SkeletonStream();
+                Image.Source = skeletonStream.StartSkeletonStream(sensor);
+                Button2.Background = Brushes.Gray;
+                Button0.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+                Button1.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+            }
+        }
+
+        private void Squat(object sender, RoutedEventArgs e)
+        {
+            if (null == sensor)
+            {
+                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+            }
+            else
+            {
+                this.statusBarText.Text = Properties.Resources.SquatMode;
+            }
+        }
+
+        private void Deadlift(object sender, RoutedEventArgs e)
+        {
+            if (null == sensor)
+            {
+                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+            }
+            else
+            {
+                this.statusBarText.Text = Properties.Resources.DeadliftMode;
+            }
+        }
+
+        private void OverheadPress(object sender, RoutedEventArgs e)
+        {
+            if (null == sensor)
+            {
+                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+            }
+            else
+            {
+                this.statusBarText.Text = Properties.Resources.OHPMode;
+                Squat squatMode = new App2.Squat();
+                Squat.startSquatMode(sensor);
+            }
+
+        }
+    }
+}
