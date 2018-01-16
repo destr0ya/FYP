@@ -39,7 +39,6 @@ namespace App2
             this.drawingGroup = new DrawingGroup();
             this.imageSource = new DrawingImage(this.drawingGroup);
             
-
             sensor.SkeletonStream.Enable();
             sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
 
@@ -48,6 +47,26 @@ namespace App2
             {
                 sensor.Start();
                 return this.imageSource;
+            }
+            catch (System.IO.IOException)
+            {
+                sensor = null;
+            }
+        }
+
+        internal void StartSkeletonStreamVoid(KinectSensor sensor)
+        {
+            this.sensor = sensor;
+
+            this.drawingGroup = new DrawingGroup();
+            this.imageSource = new DrawingImage(this.drawingGroup);
+
+            sensor.SkeletonStream.Enable();
+            sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
+
+            try
+            {
+                sensor.Start();
             }
             catch (System.IO.IOException)
             {

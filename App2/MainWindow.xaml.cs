@@ -24,6 +24,7 @@ namespace App2
     {
 
         private KinectSensor sensor;
+        private String noKinectReady = "No Kinect connected.";
 
         public MainWindow()
         {
@@ -50,7 +51,7 @@ namespace App2
             }
             if (null == this.sensor)
             {
-                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                this.statusBarText.Text = noKinectReady;
             }
         }
 
@@ -66,7 +67,7 @@ namespace App2
         {
             if (null == this.sensor)
             {
-                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                this.statusBarText.Text = noKinectReady;
             }
             else
             {
@@ -82,7 +83,7 @@ namespace App2
         {
             if (null == this.sensor)
             {
-                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                this.statusBarText.Text = noKinectReady;
             }
             else
             {
@@ -98,7 +99,7 @@ namespace App2
         {
             if (null == sensor)
             {
-                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                this.statusBarText.Text = noKinectReady;
             }
             else
             {
@@ -114,11 +115,14 @@ namespace App2
         {
             if (null == sensor)
             {
-                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                this.statusBarText.Text = noKinectReady;
             }
             else
             {
-                this.statusBarText.Text = Properties.Resources.SquatMode;
+                this.statusBarText.Text = "Squat mode acitivated";
+                Squat squatMode = new App2.Squat();
+                squatMode.StartSquatMode(sensor);
+                this.activityText.Text = "Please enter starting position.";
             }
         }
 
@@ -126,11 +130,11 @@ namespace App2
         {
             if (null == sensor)
             {
-                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                this.statusBarText.Text = noKinectReady;
             }
             else
             {
-                this.statusBarText.Text = Properties.Resources.DeadliftMode;
+                this.statusBarText.Text = "Deadlift mode activated";
             }
         }
 
@@ -138,13 +142,11 @@ namespace App2
         {
             if (null == sensor)
             {
-                this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                this.statusBarText.Text = noKinectReady;
             }
             else
             {
-                this.statusBarText.Text = Properties.Resources.OHPMode;
-                Squat squatMode = new App2.Squat();
-                Squat.startSquatMode(sensor);
+                this.statusBarText.Text = "Overhead press mode activated";
             }
 
         }

@@ -67,37 +67,5 @@ namespace App2.Properties
                 resourceCulture = value;
             }
         }
-
-        internal static string NoKinectReady
-        {
-            get
-            {
-                return ResourceManager.GetString("NoKinectReady", resourceCulture);
-            }
-        }
-
-        internal static string SquatMode
-        {
-            get
-            {
-                return ResourceManager.GetString("Squat Mode Activated", resourceCulture);
-            }
-        }
-
-        internal static string OHPMode
-        {
-            get
-            {
-                return ResourceManager.GetString("Overhead Press Mode Activated", resourceCulture);
-            }
-        }
-
-        internal static string DeadliftMode
-        {
-            get
-            {
-                return ResourceManager.GetString("Deadlift Mode Activated", resourceCulture);
-            }
-        }
     }
 }
