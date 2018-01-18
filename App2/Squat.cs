@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Windows.Media.Imaging;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace App2
 {
@@ -11,6 +15,15 @@ namespace App2
     {
         private KinectSensor sensor;
         Skeleton[] skeletonData;
+        //private BitmapImage SquatImage;
+
+        public ImageSource ShowSquatImage()
+        {
+            BitmapImage image = new BitmapImage(new Uri("/Images/SquatStart.png", UriKind.Relative));
+            Image myImage = new Image();
+            myImage.Source = image;
+            return myImage.Source;
+        }
 
         internal void StartSquatMode(KinectSensor sensor)
         {
