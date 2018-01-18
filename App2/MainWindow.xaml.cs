@@ -115,7 +115,7 @@ namespace App2
         {
             if (null == sensor)
             {
-                this.statusBarText.Text = noKinectReady;
+               this.statusBarText.Text = noKinectReady;
             }
             else
             {
@@ -123,6 +123,7 @@ namespace App2
                 Squat squatMode = new App2.Squat();
                 squatMode.StartSquatMode(sensor);
                 this.activityText.Text = "Please enter starting position.";
+                this.DemoImage.Source = squatMode.ShowSquatImage();
             }
         }
 
