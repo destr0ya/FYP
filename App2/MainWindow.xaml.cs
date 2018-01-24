@@ -119,11 +119,15 @@ namespace App2
             }
             else
             {
-                this.statusBarText.Text = "Squat mode acitivated";
+                //Sending logic to Squat class
                 Squat squatMode = new App2.Squat();
                 squatMode.StartSquatMode(sensor);
+
+                //Change of UI
+                this.statusBarText.Text = "Squat mode acitivated";
                 this.activityText.Text = "Please enter starting position.";
                 this.DemoImage.Source = squatMode.ShowSquatImage();
+                SquatButton.Background = Brushes.Gray;
             }
         }
 

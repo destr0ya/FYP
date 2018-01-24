@@ -54,26 +54,6 @@ namespace App2
             }
         }
 
-        internal void StartSkeletonStreamVoid(KinectSensor sensor)
-        {
-            this.sensor = sensor;
-
-            this.drawingGroup = new DrawingGroup();
-            this.imageSource = new DrawingImage(this.drawingGroup);
-
-            sensor.SkeletonStream.Enable();
-            sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
-
-            try
-            {
-                sensor.Start();
-            }
-            catch (System.IO.IOException)
-            {
-                sensor = null;
-            }
-        }
-
         private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             Skeleton[] skeletons = new Skeleton[0];
