@@ -27,9 +27,9 @@
                 </StatusBarItem>
             </StatusBar>
             <Image Name="DemoImage" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Height="100" VerticalAlignment="Center" Width="180" />
-            <Button Background ="#6e08b2" Foreground ="White" Content="Squat" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Height="60" Width="148" Click="Squat"/>
-            <Button Background ="#6e08b2" Foreground ="White" Content="Deadlift" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Height="60" Width="148" Click="Deadlift" />
-            <Button Background ="#6e08b2" Foreground ="White" Content="Overhead Press" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"  VerticalAlignment="Top" Height="60" Width="148" Click="OverheadPress"/>
+            <Button x:Name="SquatButton" Background ="#6e08b2" Foreground ="White" Content="Squat" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Height="60" Width="148" Click="Squat"/>
+            <Button x:Name="DeadliftButton" Background ="#6e08b2" Foreground ="White" Content="Deadlift" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Height="60" Width="148" Click="Deadlift" />
+            <Button x:Name="OHPButton" Background ="#6e08b2" Foreground ="White" Content="Overhead Press" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"  VerticalAlignment="Top" Height="60" Width="148" Click="OverheadPress"/>
         </Grid>
         <Grid x:Name="StreamButtonLayout">
             <Grid.RowDefinitions>

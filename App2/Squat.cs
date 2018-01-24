@@ -14,8 +14,6 @@ namespace App2
     class Squat
     {
         private KinectSensor sensor;
-        Skeleton[] skeletonData;
-        //private BitmapImage SquatImage;
 
         public ImageSource ShowSquatImage()
         {
@@ -28,10 +26,12 @@ namespace App2
         internal void StartSquatMode(KinectSensor sensor)
         {
             this.sensor = sensor;
-            sensor.SkeletonStream.Enable(); // Enable skeletal tracking
-
-            skeletonData = new Skeleton[sensor.SkeletonStream.FrameSkeletonArrayLength]; // Allocate ST data
-
+            SkeletonPos skeletonPos = new SkeletonPos();
+            skeletonPos.StartSkeletonStream(sensor);
+            //sensor.SkeletonStream.Enable(); // Enable skeletal tracking
+            
+            // Allocate ST data
+            
             //sensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(kinect_SkeletonFrameReady); // Get Ready for Skeleton Ready Events
 
             sensor.Start();

@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="ColourStream.cs" />
     <Compile Include="DepthStream.cs" />
+    <Compile Include="SkeletonPos.cs" />
     <Compile Include="SkeletonStream.cs" />
     <Compile Include="Squat.cs" />
     <Page Include="MainWindow.xaml">
