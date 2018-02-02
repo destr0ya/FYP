@@ -120,7 +120,7 @@ namespace App2
             else
             {
                 //Sending logic to Squat class
-                Squat squatMode = new App2.Squat();
+                Squat squatMode = new Squat();
                 squatMode.StartSquatMode(sensor);
 
                 //Change of UI
