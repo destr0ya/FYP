@@ -16,7 +16,6 @@ namespace App2
     {
         private KinectSensor sensor;
         Skeleton[] skeletons = new Skeleton[3];
-        private static bool depthAchieved;
 
         public ImageSource ShowSquatImage()
         {
@@ -68,7 +67,7 @@ namespace App2
             }
         }
 
-        internal static bool CheckStartingPos(Skeleton skeleton)
+        internal Boolean CheckStartingPos(Skeleton skeleton)
         {
             Joint head = skeleton.Joints[JointType.Head];
             Joint neck = skeleton.Joints[JointType.ShoulderCenter];
@@ -105,10 +104,6 @@ namespace App2
 
         internal static void TrackSquat(Skeleton skeleton)
         {
-            //Average Knee Y Position
-            float kneesY = (skeleton.Joints[JointType.KneeLeft].Position.Y + skeleton.Joints[JointType.KneeRight].Position.Y) / 2;
-            float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
-
             if (skeleton.Joints[JointType.AnkleLeft].Position.Y > (skeleton.Joints[JointType.FootLeft].Position.Y + 0.05f))
             {
                 Debug.WriteLine("Left heel coming off floor");
@@ -119,7 +114,8 @@ namespace App2
                 Debug.WriteLine("Right heel coming off floor");
             }
 
-            if (skeleton.Joints[JointType.Head].Position.Z < kneesZ) {
+            if ((skeleton.Joints[JointType.Head].Position.Z < (skeleton.Joints[JointType.KneeLeft].Position.Z + 0.1f)) || 
+                (skeleton.Joints[JointType.Head].Position.Z < (skeleton.Joints[JointType.KneeRight].Position.Z + 0.1f))) {
                 Debug.WriteLine("Head coming too far forward");
             }
 
@@ -139,15 +135,7 @@ namespace App2
                 Debug.WriteLine("Right knee out of line");
             }
 
-            if (skeleton.Joints[JointType.HipCenter].Position.Y <= kneesY)
-            {
-                depthAchieved = true;   
-            }
-
-            if (CheckStartingPos(skeleton) && depthAchieved == false)
-            {
-                Debug.WriteLine("Didn't reach parallel");
-            }
+           //If depth isn't achieved
 
         }
 
