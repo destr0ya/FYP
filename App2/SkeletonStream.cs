@@ -1,12 +1,14 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace App2
 {
@@ -38,20 +40,12 @@ namespace App2
 
             this.drawingGroup = new DrawingGroup();
             this.imageSource = new DrawingImage(this.drawingGroup);
-            
+
+            //Skeleton Stream
             sensor.SkeletonStream.Enable();
             sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
 
             return this.imageSource;
-            try
-            {
-                sensor.Start();
-                return this.imageSource;
-            }
-            catch (System.IO.IOException)
-            {
-                sensor = null;
-            }
         }
 
         private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)

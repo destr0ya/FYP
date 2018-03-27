@@ -18,13 +18,14 @@ namespace App2
     {
         private KinectSensor sensor;
         Skeleton[] skeletons = new Skeleton[3];
+        public static bool startingPosFound;
         private static bool depthAchieved;
         private static float skeletonHeight = 0.0f;
 
         public ImageSource ShowSquatImage()
         {
             BitmapImage image = new BitmapImage(new Uri("/Images/SquatStart.png", UriKind.Relative));
-            Image myImage = new Image();
+            System.Windows.Controls.Image myImage = new System.Windows.Controls.Image();
             myImage.Source = image;
             return myImage.Source;
         }
@@ -108,6 +109,7 @@ namespace App2
                     (Math.Abs((leftHip.Position.X + leftKnee.Position.X + leftAnkle.Position.X) / 3 - Math.Abs(leftHip.Position.X)) < (0.2 * skeletonHeight)))
             {
                 Debug.WriteLine("Starting Position Found");
+                startingPosFound = true;
                 return true;
             }
             else
