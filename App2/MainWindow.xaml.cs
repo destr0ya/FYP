@@ -14,6 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
 using System.IO;
+using System.Windows.Forms;
+using System.Threading;
+using System.ComponentModel;
 
 namespace App2
 {
@@ -25,11 +28,8 @@ namespace App2
 
         private KinectSensor sensor;
         private String noKinectReady = "No Kinect connected.";
-
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        Dictionary<String, ColorImagePoint> dict = new Dictionary<string, ColorImagePoint>();
+        private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
@@ -111,25 +111,101 @@ namespace App2
             }
         }
 
-        private void Squat(object sender, RoutedEventArgs e)
+        private void GetDictionary (SkeletonPos skel)
         {
-            if (null == sensor)
-            {
-               this.statusBarText.Text = noKinectReady;
-            }
-            else
-            {
-                //Sending logic to Squat class
-                Squat squatMode = new App2.Squat();
-                squatMode.StartSquatMode(sensor);
+            TimeSpan waitInterval = TimeSpan.FromMilliseconds(50);
+            List<String> keys = new List<String>();
+            bool isEmpty;
 
-                //Change of UI
-                this.statusBarText.Text = "Squat mode acitivated";
-                this.activityText.Text = "Please enter starting position.";
-                this.DemoImage.Source = squatMode.ShowSquatImage();
-                SquatButton.Background = Brushes.Gray;
+            for (; !_isStopping.WaitOne(waitInterval);)
+            {
+                using (var dictionaryEnum = dict.GetEnumerator())
+                {
+                    isEmpty = !dictionaryEnum.MoveNext();
+                }
+
+                if (isEmpty)
+                {
+                    foreach (KeyValuePair<String, ColorImagePoint> entry in skel.getJointPointDict())
+                    {
+                        dict.Add(entry.Key, entry.Value);
+                        keys.Add(entry.Key);
+                    }
+                }
+
+                else
+                {
+                    foreach (var key in keys)
+                    {
+                        foreach (KeyValuePair<String, ColorImagePoint> realEntry in skel.getJointPointDict())
+                        {
+                            if (key == realEntry.Key)
+                            {
+                                dict[key] = realEntry.Value;
+                            }
+                        }
+                    }
+                }
+                foreach (KeyValuePair<String, ColorImagePoint> item in dict)
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        DrawDots(Brushes.Gold, item.Value);
+                    });
+                }
             }
         }
+
+        private void Squat(object sender, RoutedEventArgs e)
+        {
+            Squat squatMode = new Squat();
+
+            SkeletonPos skeletonPos = new SkeletonPos();
+            skeletonPos.StartSkeletonStream(sensor);
+            //Boolean to control whether starting position was found
+            bool startPosFound = false;
+
+            if (null == sensor)
+            {
+                this.statusBarText.Text = noKinectReady;
+                return;
+            }
+
+            //Update dictionary - ONE THREAD
+            Thread getDict = new Thread(() => GetDictionary(skeletonPos));
+            getDict.Start();
+
+            //Draw on screen - One thread? 
+
+            foreach (KeyValuePair<String, ColorImagePoint> item in dict)
+            {
+                DrawDots(Brushes.Gold, item.Value);
+            }
+            
+            
+            ////Check start pos. If found draw green dots.
+            //while (startPosFound)
+            //{
+            //    this.animatedText.Opacity = 1.0;
+            //    this.animatedText.Text = "Go!";
+            //    foreach (KeyValuePair<Joint, ColorImagePoint> item in dict)
+            //    {
+            //        DrawDots(Brushes.Green, item.Value);
+            //    }
+            //}
+
+            //Check squat - another thread
+            squatMode.StartSquatMode(sensor);
+
+        
+            //Change of UI
+            this.statusBarText.Text = "Squat mode activated";
+            this.activityText.Text = "Please enter starting position.";
+            this.DemoImage.Source = squatMode.ShowSquatImage();
+            SquatButton.Background = Brushes.Gray;
+    
+        }
+        
 
         private void Deadlift(object sender, RoutedEventArgs e)
         {
@@ -154,6 +230,28 @@ namespace App2
                 this.statusBarText.Text = "Overhead press mode activated";
             }
 
+        }
+        private void DrawDots(Brush colour, ColorImagePoint point)
+        {
+            //foreach (Ellipse ellipse in Ellipses.Children)
+            //{
+            //    if (ellipse.Name.Contains(joint))
+            //    {
+                    ShoulderLeftEllipse.Fill = colour;
+                    ShoulderLeftEllipse.Stroke = Brushes.Black;
+                    Canvas.SetLeft(ShoulderLeftEllipse, point.X - ShoulderLeftEllipse.Width / 2);
+                    Canvas.SetTop(ShoulderLeftEllipse, point.Y - ShoulderLeftEllipse.Width / 2);
+            //    }
+            //}
+
+            //Ellipse e = new Ellipse();
+            //e.Width = 20;
+            //e.Height = 20;
+            //e.Fill = colour;
+            //e.Stroke = Brushes.Black;
+            //Canvas.SetLeft(e, point.X - e.Width / 2);
+            //Canvas.SetRight(e, point.Y - e.Width / 2);
+            //root.Children.Add(e);
         }
     }
 }

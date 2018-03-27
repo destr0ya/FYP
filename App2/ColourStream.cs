@@ -8,6 +8,7 @@ using Microsoft.Kinect;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace App2
 {
@@ -15,6 +16,10 @@ namespace App2
     {
         private WriteableBitmap colorBitmap;
         private byte[] colorPixels;
+        
+        private ColorImageFormat colorImageFormat = ColorImageFormat.Undefined;
+        private const float RenderWidth = 525.0f;
+        private const float RenderHeight = 350.0f;
 
         internal ImageSource StartColourStream(KinectSensor sensor)
         {
