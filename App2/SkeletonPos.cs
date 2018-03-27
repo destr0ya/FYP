@@ -74,6 +74,39 @@ namespace App2
                 //right shoulder
                 DepthImagePoint rightSDepthPoint =
                     depth.MapFromSkeletonPoint(first.Joints[JointType.ShoulderRight].Position);
+                //right knee
+                DepthImagePoint rightEDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.ElbowRight].Position);
+                //left knee
+                DepthImagePoint leftEDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.ElbowLeft].Position);
+                //right hand
+                DepthImagePoint rightHdDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.HandRight].Position);
+                //left hand
+                DepthImagePoint leftHdDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.HandLeft].Position);
+                //right hip
+                DepthImagePoint rightHpDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.HipRight].Position);
+                //left hip
+                DepthImagePoint leftHpDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.HipLeft].Position);
+                //hip centre
+                DepthImagePoint centreHpDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.HipCenter].Position);
+                //right knee
+                DepthImagePoint rightKDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.KneeRight].Position);
+                //left knee
+                DepthImagePoint leftKDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.KneeLeft].Position);
+                //right ankle
+                DepthImagePoint rightADepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.AnkleRight].Position);
+                DepthImagePoint leftADepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.AnkleLeft].Position);
+
 
 
                 //Map a depth point to a point on the color image
@@ -81,13 +114,57 @@ namespace App2
                 ColorImagePoint headColorPoint =
                     depth.MapToColorImagePoint(headDepthPoint.X, headDepthPoint.Y,
                     ColorImageFormat.RgbResolution640x480Fps30);
-                //left hand
+                //left shoulder
                 ColorImagePoint leftShoulderColorPoint =
                     depth.MapToColorImagePoint(leftSDepthPoint.X, leftSDepthPoint.Y,
                     ColorImageFormat.RgbResolution640x480Fps30);
-                //right hand
+                //right shoulder
                 ColorImagePoint rightShoulderColorPoint =
                     depth.MapToColorImagePoint(rightSDepthPoint.X, rightSDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //right elbow
+                ColorImagePoint rightEColorPoint =
+                    depth.MapToColorImagePoint(rightEDepthPoint.X, rightEDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //left eblow
+                ColorImagePoint leftEColorPoint =
+                    depth.MapToColorImagePoint(leftEDepthPoint.X, leftEDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //right hand
+                ColorImagePoint rightHdColorPoint =
+                    depth.MapToColorImagePoint(rightHdDepthPoint.X, rightHdDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //left hand
+                ColorImagePoint leftHdColorPoint =
+                    depth.MapToColorImagePoint(leftHdDepthPoint.X, leftHdDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //right hip
+                ColorImagePoint rightHpColorPoint =
+                    depth.MapToColorImagePoint(rightHpDepthPoint.X, rightHpDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //left hip
+                ColorImagePoint leftHpColorPoint =
+                    depth.MapToColorImagePoint(leftHpDepthPoint.X, leftHpDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //centre hip
+                ColorImagePoint centreHpColorPoint =
+                    depth.MapToColorImagePoint(centreHpDepthPoint.X, centreHpDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //right knee
+                ColorImagePoint rightKColorPoint =
+                    depth.MapToColorImagePoint(rightKDepthPoint.X, rightKDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //left knee
+                ColorImagePoint leftKColorPoint =
+                    depth.MapToColorImagePoint(leftKDepthPoint.X, leftKDepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //right ankle
+                ColorImagePoint rightAColorPoint =
+                    depth.MapToColorImagePoint(rightADepthPoint.X, rightADepthPoint.Y,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                //left ankle
+                ColorImagePoint leftAnkleColorPoint =
+                    depth.MapToColorImagePoint(leftADepthPoint.X, leftADepthPoint.Y,
                     ColorImageFormat.RgbResolution640x480Fps30);
 
                 //Set Points
@@ -113,6 +190,105 @@ namespace App2
                 } else
                 {
                     jointPointDict.Add("ShoulderRight", rightShoulderColorPoint);
+                }
+                if (jointPointDict.ContainsKey("ElbowRight"))
+                {
+                    jointPointDict.Remove("ElbowRight");
+                    jointPointDict.Add("ElbowRight", rightEColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("ElbowRight", rightEColorPoint);
+                }
+                if (jointPointDict.ContainsKey("ElbowLeft"))
+                {
+                    jointPointDict.Remove("ElbowLeft");
+                    jointPointDict.Add("ElbowLeft", leftEColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("ElbowLeft", leftEColorPoint);
+                }
+                if (jointPointDict.ContainsKey("HandRight"))
+                {
+                    jointPointDict.Remove("HandRight");
+                    jointPointDict.Add("HandRight", rightHdColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("HandRight", rightHdColorPoint);
+                }
+                if (jointPointDict.ContainsKey("HandLeft"))
+                {
+                    jointPointDict.Remove("HandLeft");
+                    jointPointDict.Add("HandLeft", leftHdColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("HandLeft", leftHdColorPoint);
+                }
+                if (jointPointDict.ContainsKey("HipRight"))
+                {
+                    jointPointDict.Remove("HipRight");
+                    jointPointDict.Add("HipRight", rightHpColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("HipRight", rightHpColorPoint);
+                }
+                if (jointPointDict.ContainsKey("HipLeft"))
+                {
+                    jointPointDict.Remove("HipLeft");
+                    jointPointDict.Add("HipLeft", leftHpColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("HipLeft", leftHpColorPoint);
+                }
+                if (jointPointDict.ContainsKey("HipCentre"))
+                {
+                    jointPointDict.Remove("HipCentre");
+                    jointPointDict.Add("HipCentre", centreHpColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("HipCentre", centreHpColorPoint);
+                }
+                if (jointPointDict.ContainsKey("KneeRight"))
+                {
+                    jointPointDict.Remove("KneeRight");
+                    jointPointDict.Add("KneeRight", rightKColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("KneeRight", rightKColorPoint);
+                }
+                if (jointPointDict.ContainsKey("KneeLeft"))
+                {
+                    jointPointDict.Remove("KneeLeft");
+                    jointPointDict.Add("KneeLeft", leftKColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("KneeLeft", leftKColorPoint);
+                }
+                if (jointPointDict.ContainsKey("AnkleRight"))
+                {
+                    jointPointDict.Remove("AnkleRight");
+                    jointPointDict.Add("AnkleRight", rightAColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("AnkleRight", rightAColorPoint);
+                }
+                if (jointPointDict.ContainsKey("AnkleLeft"))
+                {
+                    jointPointDict.Remove("AnkleLeft");
+                    jointPointDict.Add("AnkleLeft", leftAnkleColorPoint);
+                }
+                else
+                {
+                    jointPointDict.Add("AnkleLeft", leftAnkleColorPoint);
                 }
             }        
         }

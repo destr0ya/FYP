@@ -150,7 +150,7 @@ namespace App2
                 {
                     this.Dispatcher.Invoke(() =>
                     {
-                        DrawDots(Brushes.Gold, item.Value);
+                        DrawDots(Brushes.Gold, item.Key, item.Value);
                     });
                 }
             }
@@ -177,10 +177,10 @@ namespace App2
 
             //Draw on screen - One thread? 
 
-            foreach (KeyValuePair<String, ColorImagePoint> item in dict)
-            {
-                DrawDots(Brushes.Gold, item.Value);
-            }
+            //foreach (KeyValuePair<String, ColorImagePoint> item in dict)
+            //{
+            //    DrawDots(Brushes.Gold, item.Value);
+            //}
             
             
             ////Check start pos. If found draw green dots.
@@ -231,27 +231,19 @@ namespace App2
             }
 
         }
-        private void DrawDots(Brush colour, ColorImagePoint point)
+        private void DrawDots(Brush colour, String joint, ColorImagePoint point)
         {
-            //foreach (Ellipse ellipse in Ellipses.Children)
-            //{
-            //    if (ellipse.Name.Contains(joint))
-            //    {
-                    ShoulderLeftEllipse.Fill = colour;
-                    ShoulderLeftEllipse.Stroke = Brushes.Black;
-                    Canvas.SetLeft(ShoulderLeftEllipse, point.X - ShoulderLeftEllipse.Width / 2);
-                    Canvas.SetTop(ShoulderLeftEllipse, point.Y - ShoulderLeftEllipse.Width / 2);
-            //    }
-            //}
-
-            //Ellipse e = new Ellipse();
-            //e.Width = 20;
-            //e.Height = 20;
-            //e.Fill = colour;
-            //e.Stroke = Brushes.Black;
-            //Canvas.SetLeft(e, point.X - e.Width / 2);
-            //Canvas.SetRight(e, point.Y - e.Width / 2);
-            //root.Children.Add(e);
+            foreach (Object obj in Canvas.Children)
+            {
+                var ellipse = obj as Ellipse;
+                if (ellipse != null && ellipse.Name.Contains(joint))
+                {
+                    ellipse.Fill = colour;
+                    ellipse.Stroke = Brushes.Black;
+                    Canvas.SetLeft(ellipse, point.X + 50);
+                    Canvas.SetTop(ellipse, point.Y - ellipse.Width / 2);
+                }
+            }
         }
     }
 }

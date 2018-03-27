@@ -7,12 +7,24 @@
         mc:Ignorable="d"
         Title="Emma's Project" Height="500" Width="800" Loaded="WindowLoaded" Closing="WindowClosing">
     <Grid>
-        <Canvas>
-            
+        <Canvas Name="Canvas">
             <Viewbox Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Center">
                 <Image Name="Image" Width="800" Height="500"/>
             </Viewbox>
             <Ellipse x:Name="ShoulderLeftEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="ShoulderRightEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="HeadEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="ElbowRightEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="ElbowLeftEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="HandRightEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="HandLeftEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="HipLeftEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="HipRightEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="HipCentreEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="KneeRightEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="KneeLeftEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="AnkleRightEllipse" Height="20" Width="20"/>
+            <Ellipse x:Name="AnkleLeftEllipse" Height="20" Width="20"/>
         </Canvas>
         <Grid x:Name="ExerciseButtonLayout">
             <Grid.RowDefinitions>
