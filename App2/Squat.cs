@@ -119,31 +119,6 @@ namespace App2
 
         }
 
- //      private static void WriteStartPosToCSV(Skeleton skeleton)
- //     {
- //         String filepath = @"StartPos.csv";
- //         String delimiter = ",";
-//
-//          String[] headings = new string[41];
-//          String[] values = new string[41];
-//          StringBuilder sb = new StringBuilder();
-//          foreach (Joint joint in skeleton.Joints)
-//          {
-//              headings[iterator] = joint.JointType.ToString() + " X: ";
-//              headings[iterator + 1] = joint.JointType.ToString() + " Y: ";
-//
-//              values[iterator] = joint.Position.X.ToString();
-//              values[iterator + 1] = joint.Position.Y.ToString();
-//              iterator++;
-//          }
-//         String s = null;
-//          for (int i = 0; i < headings.Length; i++)
-//          {
-//              s += String.Format("{0,-40} {1,-40:N0}\n", headings[i], values[i]);
-//          }
-//          File.WriteAllText(filepath, s);
-//      }
-
         internal static void TrackSquat(Skeleton skeleton)
         {
             //Average Knee Y Position
@@ -190,5 +165,7 @@ namespace App2
                 Debug.WriteLine("Didn't reach parallel");
             }
         }
+
+        
     }
 }

@@ -17,6 +17,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Threading;
 using System.ComponentModel;
+using System.Timers;
 
 namespace App2
 {
@@ -49,6 +50,7 @@ namespace App2
                 Button0.Background = Brushes.Gray;
 
             }
+
             if (null == this.sensor)
             {
                 this.statusBarText.Text = noKinectReady;
@@ -61,6 +63,7 @@ namespace App2
             {
                 this.sensor.Stop();
             }
+            Environment.Exit(Environment.ExitCode);
         }
 
         private void ColourStreamClick(object sender, RoutedEventArgs e)
@@ -111,7 +114,7 @@ namespace App2
             }
         }
 
-        private void GetDictionary (SkeletonPos skel)
+        private void GetDictionary (SkeletonPos skel, Brush colour)
         {
             TimeSpan waitInterval = TimeSpan.FromMilliseconds(50);
             List<String> keys = new List<String>();
@@ -156,12 +159,28 @@ namespace App2
             }
         }
 
+        private void DisplayText(String text)
+        {
+            var backgroundWorker = new BackgroundWorker();
+            backgroundWorker.DoWork += (s, ea) => Thread.Sleep(TimeSpan.FromSeconds(2));
+            backgroundWorker.RunWorkerCompleted += (s, ea) =>
+            {
+                this.animatedText.Text = "";
+            };
+
+            this.animatedText.Text = text;
+            backgroundWorker.RunWorkerAsync();
+        }
+
         private void Squat(object sender, RoutedEventArgs e)
         {
             Squat squatMode = new Squat();
 
             SkeletonPos skeletonPos = new SkeletonPos();
             skeletonPos.StartSkeletonStream(sensor);
+
+            DisplayText("Enter Starting Position");
+
             //Boolean to control whether starting position was found
             bool startPosFound = false;
 
@@ -172,16 +191,11 @@ namespace App2
             }
 
             //Update dictionary - ONE THREAD
-            Thread getDict = new Thread(() => GetDictionary(skeletonPos));
+            Thread getDict = new Thread(() => GetDictionary(skeletonPos, Brushes.Gold));
             getDict.Start();
 
+            String display = "Testing";
             //Draw on screen - One thread? 
-
-            //foreach (KeyValuePair<String, ColorImagePoint> item in dict)
-            //{
-            //    DrawDots(Brushes.Gold, item.Value);
-            //}
-            
             
             ////Check start pos. If found draw green dots.
             //while (startPosFound)
