@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
 using System.IO;
-
+using System.Threading;
 
 namespace App2
 {
@@ -18,7 +18,7 @@ namespace App2
     {
         private KinectSensor sensor;
         Skeleton[] skeletons = new Skeleton[3];
-        public static bool startingPosFound;
+        private static bool startingPosFound;
         private static bool depthAchieved;
         private static float skeletonHeight = 0.0f;
 
@@ -68,6 +68,9 @@ namespace App2
                             }
                             if (CheckStartingPos(skeleton))
                             {
+                                //mainWindow.getDict.Abort();
+                                //SkeletonPos skeletonPos = new SkeletonPos();
+                                //mainWindow.getDict = new Thread(() => mainWindow.GetDictionary(skeletonPos, System.Windows.Media.Brushes.Green));
                                 TrackSquat(skeleton);
                             }
                         }
@@ -80,6 +83,15 @@ namespace App2
         {
             float footAverageY = (skeleton.Joints[JointType.FootRight].Position.Y + skeleton.Joints[JointType.FootLeft].Position.Y) / 2;
             return skeleton.Joints[JointType.Head].Position.Y - footAverageY;
+        }
+
+        public bool CheckStartPosFound()
+        {
+            if (startingPosFound)
+            {
+                return true;
+            }
+            else return false;
         }
 
         internal static bool CheckStartingPos(Skeleton skeleton)
