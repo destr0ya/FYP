@@ -32,6 +32,7 @@ namespace App2
         Dictionary<String, ColorImagePoint> dict = new Dictionary<string, ColorImagePoint>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
         Squat squatMode = new Squat();
+        bool startPostFound = false;
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
@@ -65,12 +66,6 @@ namespace App2
                 this.sensor.Stop();
             }
             Environment.Exit(Environment.ExitCode);
-        }
-
-        public Thread getDict
-        {
-            get;
-            set;
         }
 
         private void ColourStreamClick(object sender, RoutedEventArgs e)
@@ -121,7 +116,7 @@ namespace App2
             }
         }
 
-        internal void GetDictionary (SkeletonPos skel, Brush colour)
+        internal void GetDictionary(SkeletonPos skel, Brush colour)
         {
             TimeSpan waitInterval = TimeSpan.FromMilliseconds(50);
             List<String> keys = new List<String>();
@@ -165,11 +160,13 @@ namespace App2
                                 DrawDots(colour, item.Key, item.Value);
                             });
                         }
-                    } else if (squatMode.CheckStartPosFound())
+                    }
+                    else if (squatMode.CheckStartPosFound())
                     {
                         {
                             this.Dispatcher.Invoke(() =>
                             {
+                                DisplayTextOnce("Starting Position Found - Squat!");
                                 DrawDots(Brushes.SpringGreen, item.Key, item.Value);
                             });
                         }
@@ -190,9 +187,26 @@ namespace App2
             backgroundWorker.RunWorkerAsync();
         }
 
+        private void DisplayTextOnce(String text)
+        {
+            if (!startPostFound)
+            {
+                var backgroundWorker = new BackgroundWorker();
+                backgroundWorker.DoWork += (s, ea) => Thread.Sleep(TimeSpan.FromSeconds(2));
+                backgroundWorker.RunWorkerCompleted += (s, ea) =>
+                {
+                    this.animatedText.Text = "";
+                };
+
+                this.animatedText.Text = text;
+                backgroundWorker.RunWorkerAsync();
+                startPostFound = true;
+            }
+        }
+
         private void Squat(object sender, RoutedEventArgs e)
         {
-            
+
 
             SkeletonPos skeletonPos = new SkeletonPos();
             skeletonPos.StartSkeletonStream(sensor);
@@ -209,12 +223,16 @@ namespace App2
             }
 
             //Update dictionary - ONE THREAD
-            getDict = new Thread(() => GetDictionary(skeletonPos, Brushes.Gold));
+            Thread getDict = new Thread(() => GetDictionary(skeletonPos, Brushes.Gold));
             getDict.Start();
 
-            String display = "Testing";
+            if (squatMode.CheckStartPosFound())
+            {
+                DisplayText("Starting Position Found - Squat!");
+            }
+
             //Draw on screen - One thread? 
-            
+
             ////Check start pos. If found draw green dots.
             //while (startPosFound)
             //{
@@ -229,15 +247,15 @@ namespace App2
             //Check squat - another thread
             squatMode.StartSquatMode(sensor);
 
-        
+
             //Change of UI
             this.statusBarText.Text = "Squat mode activated";
             this.activityText.Text = "Please enter starting position.";
             this.DemoImage.Source = squatMode.ShowSquatImage();
             SquatButton.Background = Brushes.Gray;
-    
+
         }
-        
+
 
         private void Deadlift(object sender, RoutedEventArgs e)
         {

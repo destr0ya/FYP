@@ -67,10 +67,7 @@ namespace App2
                                 skeletonHeight = setSkeletonHeight(skeleton);
                             }
                             if (CheckStartingPos(skeleton))
-                            {
-                                //mainWindow.getDict.Abort();
-                                //SkeletonPos skeletonPos = new SkeletonPos();
-                                //mainWindow.getDict = new Thread(() => mainWindow.GetDictionary(skeletonPos, System.Windows.Media.Brushes.Green));
+                            { 
                                 TrackSquat(skeleton);
                             }
                         }
