@@ -30,6 +30,7 @@ namespace App2
         private KinectSensor sensor;
         private String noKinectReady = "No Kinect connected.";
         Dictionary<String, ColorImagePoint> dict = new Dictionary<string, ColorImagePoint>();
+        Dictionary<String, String> squatDict = new Dictionary<string, string>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
         Squat squatMode = new Squat();
         bool startPostFound = false;
@@ -136,6 +137,10 @@ namespace App2
                         dict.Add(entry.Key, entry.Value);
                         keys.Add(entry.Key);
                     }
+                    //foreach(KeyValuePair<String, String> entry in squatMode.getSquatJointDict())
+                    //{
+                    //    squatDict.Add(entry.Key, entry.Value);
+                    //}
                 }
 
                 else
@@ -149,6 +154,13 @@ namespace App2
                                 dict[key] = realEntry.Value;
                             }
                         }
+                        //foreach (KeyValuePair<String, String> realEntry in squatMode.getSquatJointDict())
+                        //{
+                        //    if (key == realEntry.Key)
+                        //    {
+                        //        squatDict[key] = realEntry.Value;
+                        //    }
+                        //}
                     }
                 }
                 foreach (KeyValuePair<String, ColorImagePoint> item in dict)
@@ -229,6 +241,7 @@ namespace App2
             if (squatMode.CheckStartPosFound())
             {
                 DisplayText("Starting Position Found - Squat!");
+                
             }
 
             //Draw on screen - One thread? 
