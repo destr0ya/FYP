@@ -32,7 +32,6 @@ namespace App2
         Dictionary<String, ColorImagePoint> dict = new Dictionary<string, ColorImagePoint>();
         Dictionary<String, String> squatDict = new Dictionary<string, string>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
-        Squat squatMode = new Squat();
         bool startPostFound = false;
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -117,7 +116,7 @@ namespace App2
             }
         }
 
-        internal void GetDictionary(SkeletonPos skel, Brush colour)
+        internal void GetDictionary(SkeletonPos skel, Exercise exercise)
         {
             TimeSpan waitInterval = TimeSpan.FromMilliseconds(50);
             List<String> keys = new List<String>();
@@ -138,7 +137,7 @@ namespace App2
                         dict.Add(entry.Key, entry.Value);
                         keys.Add(entry.Key);
                     }
-                    foreach (KeyValuePair<String, String> entry in squatMode.getSquatJointDict().ToList())
+                    foreach (KeyValuePair<String, String> entry in exercise.GetDictionary().ToList())
                     {
                         squatDict.Add(entry.Key, entry.Value);
                     }
@@ -155,7 +154,7 @@ namespace App2
                                 dict[key] = realEntry.Value;
                             }
                         }
-                        foreach (KeyValuePair<String, String> realEntry in squatMode.getSquatJointDict().ToList())
+                        foreach (KeyValuePair<String, String> realEntry in exercise.GetDictionary().ToList())
                         {
                             if (key == realEntry.Key)
                             {
@@ -165,16 +164,16 @@ namespace App2
                     }
                 }
                 foreach (KeyValuePair<String, ColorImagePoint> item in dict)
-                    if (!squatMode.CheckStartPosFound())
+                    if (!exercise.CheckStartPosFound())
                     {
                         {
                             this.Dispatcher.Invoke(() =>
                             {
-                                DrawDots(colour, item.Key, item.Value);
+                                DrawDots(Brushes.Gold, item.Key, item.Value);
                             });
                         }
                     }
-                    else if (squatMode.CheckStartPosFound())
+                    else if (exercise.CheckStartPosFound())
                     {
                         {
                             if (squatDict.ContainsKey(item.Key))
@@ -228,15 +227,11 @@ namespace App2
 
         private void Squat(object sender, RoutedEventArgs e)
         {
-
-
+            Squat squatMode = new Squat();
             SkeletonPos skeletonPos = new SkeletonPos();
             skeletonPos.StartSkeletonStream(sensor);
 
             DisplayText("Enter Starting Position");
-
-            //Boolean to control whether starting position was found
-            bool startPosFound = false;
 
             if (null == sensor)
             {
@@ -245,7 +240,7 @@ namespace App2
             }
 
             //Update dictionary - ONE THREAD
-            Thread getDict = new Thread(() => GetDictionary(skeletonPos, Brushes.Gold));
+            Thread getDict = new Thread(() => GetDictionary(skeletonPos, squatMode));
             getDict.Start();
 
             if (squatMode.CheckStartPosFound())
@@ -253,57 +248,75 @@ namespace App2
                 DisplayText("Starting Position Found - Squat!");
                 
             }
-
-            //Draw on screen - One thread? 
-
-            ////Check start pos. If found draw green dots.
-            //while (startPosFound)
-            //{
-            //    this.animatedText.Opacity = 1.0;
-            //    this.animatedText.Text = "Go!";
-            //    foreach (KeyValuePair<Joint, ColorImagePoint> item in dict)
-            //    {
-            //        DrawDots(Brushes.Green, item.Value);
-            //    }
-            //}
-
-            //Check squat - another thread
-            squatMode.StartSquatMode(sensor);
-
+            squatMode.StartExercise(sensor);
 
             //Change of UI
             this.statusBarText.Text = "Squat mode activated";
             this.activityText.Text = "Please enter starting position.";
-            this.DemoImage.Source = squatMode.ShowSquatImage();
+            this.DemoImage.Source = squatMode.ShowImage();
             SquatButton.Background = Brushes.Gray;
-
-        }
-
-
-        private void Deadlift(object sender, RoutedEventArgs e)
-        {
-            if (null == sensor)
-            {
-                this.statusBarText.Text = noKinectReady;
-            }
-            else
-            {
-                this.statusBarText.Text = "Deadlift mode activated";
-            }
         }
 
         private void OverheadPress(object sender, RoutedEventArgs e)
         {
+            OverheadPress overheadPress = new OverheadPress();
+            SkeletonPos skeletonPos = new SkeletonPos();
+            skeletonPos.StartSkeletonStream(sensor);
+
+            DisplayText("Enter Starting Position");
+
             if (null == sensor)
             {
                 this.statusBarText.Text = noKinectReady;
-            }
-            else
-            {
-                this.statusBarText.Text = "Overhead press mode activated";
+                return;
             }
 
+            Thread getDict = new Thread(() => GetDictionary(skeletonPos, overheadPress));
+            getDict.Start();
+
+            if (overheadPress.CheckStartPosFound()) {
+                DisplayText("Starting Position Found - Press!");
+            }
+
+            overheadPress.StartExercise(sensor);
+
+            this.statusBarText.Text = "Overhead press mode activated";
+            this.activityText.Text = "Please enter starting position";
+            this.DemoImage.Source = overheadPress.ShowImage();
+            OHPButton.Background = Brushes.Gray;
+
         }
+
+        private void Deadlift(object sender, RoutedEventArgs e)
+        {
+            Deadlift deadlift = new Deadlift();
+            SkeletonPos skeletonPos = new SkeletonPos();
+            skeletonPos.StartSkeletonStream(sensor);
+
+            DisplayText("Enter Starting Position");
+
+            if (null == sensor)
+            {
+                this.statusBarText.Text = noKinectReady;
+                return;
+            }
+
+            Thread getDict = new Thread(() => GetDictionary(skeletonPos, deadlift));
+            getDict.Start();
+
+            if (deadlift.CheckStartPosFound())
+            {
+                DisplayText("Starting Position Found - Lift!");
+            }
+
+            deadlift.StartExercise(sensor);
+
+            this.statusBarText.Text = "Deadlift mode activated";
+            this.activityText.Text = "Please enter starting position.";
+            this.DemoImage.Source = deadlift.ShowImage();
+            DeadliftButton.Background = Brushes.Gray;
+        }
+
         private void DrawDots(Brush colour, String joint, ColorImagePoint point)
         {
             foreach (Object obj in Canvas.Children)

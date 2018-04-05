@@ -61,7 +61,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ColourStream.cs" />
+    <Compile Include="Deadlift.cs" />
     <Compile Include="DepthStream.cs" />
+    <Compile Include="Exercise.cs" />
+    <Compile Include="OverheadPress.cs" />
     <Compile Include="SkeletonPos.cs" />
     <Compile Include="SkeletonStream.cs" />
     <Compile Include="Squat.cs" />
