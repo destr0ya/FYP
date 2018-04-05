@@ -30,6 +30,7 @@ namespace App2
         private KinectSensor sensor;
         private String noKinectReady = "No Kinect connected.";
         Dictionary<String, ColorImagePoint> dict = new Dictionary<string, ColorImagePoint>();
+        Dictionary<String, String> squatDict = new Dictionary<string, string>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
         Squat squatMode = new Squat();
         bool startPostFound = false;
@@ -124,6 +125,7 @@ namespace App2
 
             for (; !_isStopping.WaitOne(waitInterval);)
             {
+                squatDict.Clear();
                 using (var dictionaryEnum = dict.GetEnumerator())
                 {
                     isEmpty = !dictionaryEnum.MoveNext();
@@ -136,6 +138,10 @@ namespace App2
                         dict.Add(entry.Key, entry.Value);
                         keys.Add(entry.Key);
                     }
+                    foreach (KeyValuePair<String, String> entry in squatMode.getSquatJointDict().ToList())
+                    {
+                        squatDict.Add(entry.Key, entry.Value);
+                    }
                 }
 
                 else
@@ -147,6 +153,13 @@ namespace App2
                             if (key == realEntry.Key)
                             {
                                 dict[key] = realEntry.Value;
+                            }
+                        }
+                        foreach (KeyValuePair<String, String> realEntry in squatMode.getSquatJointDict().ToList())
+                        {
+                            if (key == realEntry.Key)
+                            {
+                                squatDict[key] = realEntry.Value;
                             }
                         }
                     }
@@ -164,11 +177,20 @@ namespace App2
                     else if (squatMode.CheckStartPosFound())
                     {
                         {
-                            this.Dispatcher.Invoke(() =>
+                            if (squatDict.ContainsKey(item.Key))
                             {
-                                DisplayTextOnce("Starting Position Found - Squat!");
-                                DrawDots(Brushes.SpringGreen, item.Key, item.Value);
-                            });
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    DrawDots(Brushes.Red, item.Key, item.Value);
+                                });
+                            } else
+                            {
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    DisplayTextOnce("Starting Position Found - Squat!");
+                                    DrawDots(Brushes.SpringGreen, item.Key, item.Value);
+                                });
+                            }
                         }
                     }
             }
@@ -229,6 +251,7 @@ namespace App2
             if (squatMode.CheckStartPosFound())
             {
                 DisplayText("Starting Position Found - Squat!");
+                
             }
 
             //Draw on screen - One thread? 
