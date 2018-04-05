@@ -125,6 +125,7 @@ namespace App2
 
             for (; !_isStopping.WaitOne(waitInterval);)
             {
+                squatDict.Clear();
                 using (var dictionaryEnum = dict.GetEnumerator())
                 {
                     isEmpty = !dictionaryEnum.MoveNext();
@@ -137,10 +138,10 @@ namespace App2
                         dict.Add(entry.Key, entry.Value);
                         keys.Add(entry.Key);
                     }
-                    //foreach(KeyValuePair<String, String> entry in squatMode.getSquatJointDict())
-                    //{
-                    //    squatDict.Add(entry.Key, entry.Value);
-                    //}
+                    foreach (KeyValuePair<String, String> entry in squatMode.getSquatJointDict().ToList())
+                    {
+                        squatDict.Add(entry.Key, entry.Value);
+                    }
                 }
 
                 else
@@ -154,13 +155,13 @@ namespace App2
                                 dict[key] = realEntry.Value;
                             }
                         }
-                        //foreach (KeyValuePair<String, String> realEntry in squatMode.getSquatJointDict())
-                        //{
-                        //    if (key == realEntry.Key)
-                        //    {
-                        //        squatDict[key] = realEntry.Value;
-                        //    }
-                        //}
+                        foreach (KeyValuePair<String, String> realEntry in squatMode.getSquatJointDict().ToList())
+                        {
+                            if (key == realEntry.Key)
+                            {
+                                squatDict[key] = realEntry.Value;
+                            }
+                        }
                     }
                 }
                 foreach (KeyValuePair<String, ColorImagePoint> item in dict)
@@ -176,11 +177,20 @@ namespace App2
                     else if (squatMode.CheckStartPosFound())
                     {
                         {
-                            this.Dispatcher.Invoke(() =>
+                            if (squatDict.ContainsKey(item.Key))
                             {
-                                DisplayTextOnce("Starting Position Found - Squat!");
-                                DrawDots(Brushes.SpringGreen, item.Key, item.Value);
-                            });
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    DrawDots(Brushes.Red, item.Key, item.Value);
+                                });
+                            } else
+                            {
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    DisplayTextOnce("Starting Position Found - Squat!");
+                                    DrawDots(Brushes.SpringGreen, item.Key, item.Value);
+                                });
+                            }
                         }
                     }
             }
