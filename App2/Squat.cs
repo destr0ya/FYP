@@ -140,7 +140,7 @@ namespace App2
             float kneesY = (skeleton.Joints[JointType.KneeLeft].Position.Y + skeleton.Joints[JointType.KneeRight].Position.Y) / 2;
             float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
 
-            if (skeleton.Joints[JointType.AnkleLeft].Position.Y > (skeleton.Joints[JointType.FootLeft].Position.Y + (0.02 * skeletonHeight)))
+            if (skeleton.Joints[JointType.AnkleLeft].Position.Y > (skeleton.Joints[JointType.FootLeft].Position.Y + (0.1 * skeletonHeight)))
             {
                 if (jointErrorDict.ContainsKey("AnkleLeft"))
                 {
@@ -153,7 +153,7 @@ namespace App2
                 }
             }
 
-            if (skeleton.Joints[JointType.AnkleRight].Position.Y > (skeleton.Joints[JointType.FootRight].Position.Y + (0.02 * skeletonHeight)));
+            if (skeleton.Joints[JointType.AnkleRight].Position.Y > (skeleton.Joints[JointType.FootRight].Position.Y + (0.1 * skeletonHeight)));
             {
                 if (jointErrorDict.ContainsKey("AnkleRight"))
                 {
@@ -166,7 +166,7 @@ namespace App2
                 }
             }
 
-            if (skeleton.Joints[JointType.Head].Position.Z < kneesZ)
+            if (skeleton.Joints[JointType.Head].Position.Z < (kneesZ - 0.05 * skeletonHeight))
             {
                 if (jointErrorDict.ContainsKey("Head"))
                 {
@@ -179,21 +179,33 @@ namespace App2
                 }
             }
 
-            if (skeleton.Joints[JointType.FootLeft].Position.X - Math.Abs(skeleton.Joints[JointType.HipCenter].Position.X) - 
-                skeleton.Joints[JointType.FootRight].Position.X - Math.Abs(skeleton.Joints[JointType.HipCenter].Position.X) > (0.05 * skeletonHeight))
+            if (!(skeleton.Joints[JointType.HipRight].Position.X >= skeleton.Joints[JointType.ShoulderCenter].Position.X))
             {
-                if (jointErrorDict.ContainsKey("HipCentre"))
+                if (jointErrorDict.ContainsKey("HipRight"))
                 {
-                    jointErrorDict.Remove("HipCentre");
-                    jointErrorDict.Add("HipCentre", "Hips off-centre");
+                    jointErrorDict.Remove("HipRight");
+                    jointErrorDict.Add("HipRight", "Right hip out of line");
                 }
                 else
                 {
-                    jointErrorDict.Add("HipCentre", "Hips off-centre");
+                    jointErrorDict.Add("HipRight", "Right hip out of line");
                 }
             }
 
-            if (skeleton.Joints[JointType.KneeLeft].Position.X < skeleton.Joints[JointType.AnkleLeft].Position.X - (0.02 * skeletonHeight))
+            if (!(skeleton.Joints[JointType.HipLeft].Position.X <= skeleton.Joints[JointType.ShoulderCenter].Position.X))
+            {
+                if (jointErrorDict.ContainsKey("HipLeft"))
+                {
+                    jointErrorDict.Remove("HipLeft");
+                    jointErrorDict.Add("HipLeft", "Right hip out of line");
+                }
+                else
+                {
+                    jointErrorDict.Add("HipLeft", "Right hip out of line");
+                }
+            }
+
+            if (skeleton.Joints[JointType.KneeLeft].Position.X - (0.02 * skeletonHeight) > (skeleton.Joints[JointType.AnkleLeft].Position.X ))
             {
                 if (jointErrorDict.ContainsKey("KneeLeft"))
                 {
@@ -206,7 +218,7 @@ namespace App2
                 }
             }
 
-            if (skeleton.Joints[JointType.KneeRight].Position.X > skeleton.Joints[JointType.AnkleRight].Position.X - (0.02 * skeletonHeight))
+            if (skeleton.Joints[JointType.KneeRight].Position.X + (0.02 * skeletonHeight) < (skeleton.Joints[JointType.AnkleRight].Position.X ))
             {
                 if (jointErrorDict.ContainsKey("KneeRight"))
                 {
@@ -222,8 +234,12 @@ namespace App2
             if (skeleton.Joints[JointType.HipCenter].Position.Y <= kneesY)
             {
                 depthAchieved = true;
+                if (jointErrorDict.ContainsKey("HipCentre"))
+                {
+                    jointErrorDict.Remove("HipCentre");
+                }
             }
-            else if (CheckStartingPos(skeleton) && depthAchieved == false)
+            else if (depthAchieved == false)
             {
                 if (jointErrorDict.ContainsKey("HipCentre"))
                 {

@@ -132,7 +132,7 @@ namespace App2
 
                 if (isEmpty)
                 {
-                    foreach (KeyValuePair<String, ColorImagePoint> entry in skel.getJointPointDict())
+                    foreach (KeyValuePair<String, ColorImagePoint> entry in skel.getJointPointDict().ToList())
                     {
                         dict.Add(entry.Key, entry.Value);
                         keys.Add(entry.Key);
@@ -147,7 +147,7 @@ namespace App2
                 {
                     foreach (var key in keys)
                     {
-                        foreach (KeyValuePair<String, ColorImagePoint> realEntry in skel.getJointPointDict())
+                        foreach (KeyValuePair<String, ColorImagePoint> realEntry in skel.getJointPointDict().ToList())
                         {
                             if (key == realEntry.Key)
                             {
@@ -255,6 +255,8 @@ namespace App2
             this.activityText.Text = "Please enter starting position.";
             this.DemoImage.Source = squatMode.ShowImage();
             SquatButton.Background = Brushes.Gray;
+            DeadliftButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+            OHPButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
         }
 
         private void OverheadPress(object sender, RoutedEventArgs e)
@@ -283,7 +285,9 @@ namespace App2
             this.statusBarText.Text = "Overhead press mode activated";
             this.activityText.Text = "Please enter starting position";
             this.DemoImage.Source = overheadPress.ShowImage();
-            OHPButton.Background = Brushes.Gray;
+            OHPButton.Background = Brushes.Gray; Button0.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+            SquatButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+            DeadliftButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
 
         }
 
@@ -315,6 +319,8 @@ namespace App2
             this.activityText.Text = "Please enter starting position.";
             this.DemoImage.Source = deadlift.ShowImage();
             DeadliftButton.Background = Brushes.Gray;
+            SquatButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
+            OHPButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
         }
 
         private void DrawDots(Brush colour, String joint, ColorImagePoint point)
