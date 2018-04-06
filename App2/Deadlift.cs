@@ -22,7 +22,7 @@ namespace App2
 
         public ImageSource ShowImage()
         {
-            BitmapImage image = new BitmapImage(new Uri("/Images/SquatStart.png", UriKind.Relative));
+            BitmapImage image = new BitmapImage(new Uri("/Images/DeadliftStart.png", UriKind.Relative));
             System.Windows.Controls.Image myImage = new System.Windows.Controls.Image();
             myImage.Source = image;
             return myImage.Source;

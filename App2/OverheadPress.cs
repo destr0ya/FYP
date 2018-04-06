@@ -17,6 +17,10 @@ namespace App2
         private static bool startingPosFound;
         private static float skeletonHeight = 0.0f;
         private static Dictionary<String, String> jointErrorDict = new Dictionary<String, String>();
+        private static float previousLeftKneeZ = 0.0f;
+        private static float previousRightKneeZ = 0.0f;
+        private static float previousRightKneeY = 0.0f;
+        private static float previousLeftKneeY = 0.0f;
 
         public Dictionary<String, String> GetDictionary()
         {
@@ -118,7 +122,6 @@ namespace App2
                     (Math.Abs((rightHip.Position.X + rightKnee.Position.X + rightAnkle.Position.X) / 3 - Math.Abs(rightHip.Position.X)) < (0.2 * skeletonHeight)) &&
                     (Math.Abs((leftHip.Position.X + leftKnee.Position.X + leftAnkle.Position.X) / 3 - Math.Abs(leftHip.Position.X)) < (0.2 * skeletonHeight)))
             {
-                Debug.WriteLine("Starting Position Found");
                 startingPosFound = true;
                 return true;
             }
@@ -131,8 +134,157 @@ namespace App2
         internal static void TrackPress(Skeleton skeleton)
         {
             jointErrorDict.Clear();
-            //Add dictionary stuff for correct movement
-            Debug.WriteLine("OHP is getting here");
+
+            //Knees Correction
+            if (previousLeftKneeZ == 0.0f || previousRightKneeZ == 0.0f || previousRightKneeY == 0.0f || previousLeftKneeY == 0.0f)
+            {
+                previousLeftKneeZ = skeleton.Joints[JointType.KneeLeft].Position.X;
+                previousLeftKneeY = skeleton.Joints[JointType.KneeLeft].Position.Y;
+                previousRightKneeZ = skeleton.Joints[JointType.KneeRight].Position.X;
+                previousRightKneeY = skeleton.Joints[JointType.KneeRight].Position.Y;
+            }
+            float currentLeftKneeY = skeleton.Joints[JointType.KneeLeft].Position.Y;
+            float currentLeftKneeZ = skeleton.Joints[JointType.KneeLeft].Position.Z;
+            float currentRightKneeY = skeleton.Joints[JointType.KneeRight].Position.Y;
+            float currentRightKneeZ = skeleton.Joints[JointType.KneeRight].Position.Z;
+
+            //Check if knees have changed position
+            if (previousLeftKneeY > currentLeftKneeY + 0.1 * skeletonHeight || previousLeftKneeY < currentLeftKneeY - 0.1 * skeletonHeight || 
+                previousLeftKneeZ > currentLeftKneeZ + 0.1 * skeletonHeight || previousLeftKneeZ < currentLeftKneeZ - 0.1 * skeletonHeight)
+            {
+                if (jointErrorDict.ContainsKey("KneeLeft"))
+                {
+                    jointErrorDict.Remove("KneeLeft");
+                    jointErrorDict.Add("KneeLeft", "Knees should not move during overhead press.");
+                }
+                else
+                {
+                    jointErrorDict.Add("KneeLeft", "Knees should not move during overhead press.");
+                }
+            }
+
+            if (previousRightKneeY > currentRightKneeY + 0.05 * skeletonHeight || previousRightKneeY < currentRightKneeY - 0.05 * skeletonHeight || 
+                previousRightKneeZ > currentRightKneeZ + 0.05 * skeletonHeight || previousRightKneeZ < currentRightKneeZ - 0.05 * skeletonHeight)
+            {
+                if (jointErrorDict.ContainsKey("KneeRight"))
+                {
+                    jointErrorDict.Remove("KneeRight");
+                    jointErrorDict.Add("KneeRight", "Knees should not move during overhead press.");
+                }
+                else
+                {
+                    jointErrorDict.Add("KneeRight", "Knees should not move during overhead press.");
+                }
+            }
+
+            //Update previous knee position store
+            previousLeftKneeY = currentLeftKneeY;
+            previousLeftKneeZ = currentLeftKneeZ;
+            previousRightKneeY = currentRightKneeY;
+            previousRightKneeZ = currentRightKneeZ;
+
+            //Elbows Correction
+            if (skeleton.Joints[JointType.ElbowLeft].Position.Z < (skeleton.Joints[JointType.ShoulderLeft].Position.Z - 0.1 * skeletonHeight) ||
+                skeleton.Joints[JointType.ElbowLeft].Position.X > (skeleton.Joints[JointType.HandLeft].Position.X + 0.1 * skeletonHeight))
+            {
+                if (jointErrorDict.ContainsKey("ElbowLeft"))
+                {
+                    jointErrorDict.Remove("ElbowLeft");
+                    jointErrorDict.Add("ElbowLeft", "Elbows should not flare too far forward or out.");
+                }
+                else
+                {
+                    jointErrorDict.Add("ElbowLeft", "Elbows should not flare too far forward or out.");
+                }
+            }
+
+            if (skeleton.Joints[JointType.ElbowRight].Position.Z < (skeleton.Joints[JointType.ShoulderRight].Position.Z - 0.1 * skeletonHeight) ||
+                skeleton.Joints[JointType.ElbowRight].Position.X > (skeleton.Joints[JointType.HandRight].Position.X + 0.1 * skeletonHeight))
+            {
+                if (jointErrorDict.ContainsKey("ElbowRight"))
+                {
+                    jointErrorDict.Remove("ElbowRight");
+                    jointErrorDict.Add("ElbowRight", "Elbows should not flare too far forward or out.");
+                }
+                else
+                {
+                    jointErrorDict.Add("ElbowRight", "Elbows should not flare too far forward or out.");
+                }
+            }
+
+            //Hand Correction
+            if (skeleton.Joints[JointType.HandRight].Position.Y < skeleton.Joints[JointType.HandLeft].Position.Y)
+            {
+                if (jointErrorDict.ContainsKey("HandRight"))
+                {
+                    jointErrorDict.Remove("HandRight");
+                    jointErrorDict.Add("HandRight", "Right hand is slower rising than left hand.");
+                }
+                else
+                {
+                    jointErrorDict.Add("HandRight", "Right hand is slower rising than left hand.");
+                }
+            }
+
+            if (skeleton.Joints[JointType.HandRight].Position.Y > skeleton.Joints[JointType.HandLeft].Position.Y)
+            {
+                if (jointErrorDict.ContainsKey("HandLeft"))
+                {
+                    jointErrorDict.Remove("HandLeft");
+                    jointErrorDict.Add("HandLeft", "Left hand is slower rising than right hand");
+                }
+                else
+                {
+                    jointErrorDict.Add("HandLeft", "Left hand is slower rising than right hand.");
+                }
+            }
+
+            float handLineZ = (skeleton.Joints[JointType.HandRight].Position.Z + skeleton.Joints[JointType.HandLeft].Position.Z) / 2;
+            float shoulderLineZ = (skeleton.Joints[JointType.ShoulderRight].Position.Z + skeleton.Joints[JointType.ShoulderLeft].Position.Z) / 2;
+
+            if (handLineZ > shoulderLineZ - (0.05 * skeletonHeight))
+            {
+                if (jointErrorDict.ContainsKey("HandLeft"))
+                {
+                    jointErrorDict.Remove("HandLeft");
+                    jointErrorDict.Add("HandLeft", "Bringing the bar too far back at the end.");
+                }
+                else
+                {
+                    jointErrorDict.Add("HandLeft", "Bringing the bar too far back at the end.");
+                }
+                if (jointErrorDict.ContainsKey("HandRight"))
+                {
+                    jointErrorDict.Remove("HandRight");
+                    jointErrorDict.Add("HandRight", "Bringing the bar too far back at the end.");
+                }
+                else
+                {
+                    jointErrorDict.Add("HandRight", "Bringing the bar too far back at the end.");
+                }
+            }
+
+            if (handLineZ < shoulderLineZ - (0.05 * skeletonHeight))
+            {
+                if (jointErrorDict.ContainsKey("HandLeft"))
+                {
+                    jointErrorDict.Remove("HandLeft");
+                    jointErrorDict.Add("HandLeft", "Bringing the bar too far forward at the end.");
+                }
+                else
+                {
+                    jointErrorDict.Add("HandLeft", "Bringing the bar too far forward at the end.");
+                }
+                if (jointErrorDict.ContainsKey("HandRight"))
+                {
+                    jointErrorDict.Remove("HandRight");
+                    jointErrorDict.Add("HandRight", "Bringing the bar too far forward at the end.");
+                }
+                else
+                {
+                    jointErrorDict.Add("HandRight", "Bringing the bar too far forward at the end.");
+                }
+            }
         }
     }
 }
