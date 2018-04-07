@@ -18,6 +18,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.ComponentModel;
 using System.Timers;
+using System.Collections.Concurrent;
 
 namespace App2
 {
@@ -29,8 +30,8 @@ namespace App2
 
         private KinectSensor sensor;
         private String noKinectReady = "No Kinect connected.";
-        Dictionary<String, ColorImagePoint> dict = new Dictionary<string, ColorImagePoint>();
-        Dictionary<String, String> squatDict = new Dictionary<string, string>();
+        ConcurrentDictionary<String, ColorImagePoint> dict = new ConcurrentDictionary<string, ColorImagePoint>();
+        ConcurrentDictionary<String, String> squatDict = new ConcurrentDictionary<string, string>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
         bool startPostFound = false;
 
@@ -134,12 +135,12 @@ namespace App2
                 {
                     foreach (KeyValuePair<String, ColorImagePoint> entry in skel.getJointPointDict().ToList())
                     {
-                        dict.Add(entry.Key, entry.Value);
+                        dict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
                         keys.Add(entry.Key);
                     }
                     foreach (KeyValuePair<String, String> entry in exercise.GetDictionary().ToList())
                     {
-                        squatDict.Add(entry.Key, entry.Value);
+                        squatDict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
                     }
                 }
 
