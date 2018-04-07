@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Media;
@@ -13,9 +14,9 @@ namespace App2
         Skeleton[] skeletons = new Skeleton[3];
         private static bool startingPosFound;
         private static float skeletonHeight = 0.0f;
-        private static Dictionary<String, String> jointErrorDict = new Dictionary<String, String>();
+        private static ConcurrentDictionary<String, String> jointErrorDict = new ConcurrentDictionary<String, String>();
 
-        public Dictionary<string, string> GetDictionary()
+        public ConcurrentDictionary<string, string> GetDictionary()
         {
             return jointErrorDict;
         }
