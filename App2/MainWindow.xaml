@@ -3,30 +3,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:App2"
+        xmlns:k="http://schemas.microsoft.com/kinect/2013" 
         mc:Ignorable="d"
-        Title="Emma's Project" Height="500" Width="800" Loaded="WindowLoaded" Closing="WindowClosing">
-    <Grid>
-        <Canvas Name="Canvas">
-            <Viewbox Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Center">
-                <Image Name="Image" Width="800" Height="500"/>
-            </Viewbox>
-            <Ellipse x:Name="ShoulderLeftEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="ShoulderRightEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="HeadEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="ElbowRightEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="ElbowLeftEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="HandRightEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="HandLeftEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="HipLeftEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="HipRightEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="HipCentreEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="KneeRightEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="KneeLeftEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="AnkleRightEllipse" Height="20" Width="20"/>
-            <Ellipse x:Name="AnkleLeftEllipse" Height="20" Width="20"/>
-        </Canvas>
-        <Grid x:Name="ExerciseButtonLayout">
+        Title="Emma's Project" Loaded="WindowLoaded" Closing="WindowClosing" WindowState="Maximized">
+    <k:KinectRegion x:Name="kinectRegion">
+    <Grid Name="grid">
+            <Canvas Name="Canvas" Height="1000" Width="1500">
+                <Viewbox Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Center">
+                    <Image Name="Image" Width="1500" Height="1000"/>
+                </Viewbox>
+                <Image Name="CursorImage" Height="50" Width="50"/>
+                <Ellipse x:Name="ShoulderLeftEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="ShoulderRightEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="HeadEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="ElbowRightEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="ElbowLeftEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="HandRightEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="HandLeftEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="HipLeftEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="HipRightEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="HipCentreEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="KneeRightEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="KneeLeftEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="AnkleRightEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="AnkleLeftEllipse" Height="30" Width="30"/>
+            </Canvas>
+            <Grid x:Name="ExerciseButtonLayout">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50*" />
                 <RowDefinition Height="50*" />
@@ -43,9 +45,9 @@
                 </StatusBarItem>
             </StatusBar>
             <Image Name="DemoImage" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Height="100" VerticalAlignment="Center" Width="180" />
-            <Button x:Name="SquatButton" Background ="#6e08b2" Foreground ="White" Content="Squat" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Height="60" Width="148" Click="Squat"/>
-            <Button x:Name="DeadliftButton" Background ="#6e08b2" Foreground ="White" Content="Deadlift" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Height="60" Width="148" Click="Deadlift" />
-            <Button x:Name="OHPButton" Background ="#6e08b2" Foreground ="White" Content="Overhead Press" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"  VerticalAlignment="Top" Height="60" Width="148" Click="OverheadPress"/>
+            <k:KinectTileButton k:Name="SquatButton" Background ="#6e08b2" Foreground ="White" Content="Squat" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Height="80" Width="150" FontSize="20" Click="Squat"/>
+            <k:KinectTileButton  x:Name="DeadliftButton" Background ="#6e08b2" Foreground ="White" Content="Deadlift" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Height="80" Width="150" FontSize="20" Click="Deadlift" />
+            <k:KinectTileButton x:Name="OHPButton" Background ="#6e08b2" Foreground ="White" Content="Overhead Press" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"  VerticalAlignment="Top" Height="80" Width="150" FontSize="15" Click="OverheadPress"/>
         </Grid>
         <Grid x:Name="StreamButtonLayout">
             <Grid.RowDefinitions>
@@ -59,11 +61,11 @@
                 <ColumnDefinition Width="25*" />
                 <ColumnDefinition Width="80*" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="Button0" Background ="#6e08b2" Foreground ="White" Content="Colour Stream" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Height="60" Width="120" Click="ColourStreamClick"/>
-            <Button x:Name="Button1" Background ="#6e08b2" Foreground ="White" Content="Depth Stream" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Center" Height="60" Width="120" Click="DepthStreamClick"/>
-            <Button x:Name="Button2" Background ="#6e08b2" Foreground ="White" Content="Skeleton Stream" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Center" Height="60" Width="120" Click="SkeletonStreamClick"/>
-            <Canvas Grid.Column="2" HorizontalAlignment="Left" Height="100" Margin="460.8,20,-90.4,0" Grid.Row="2" Grid.RowSpan="2" VerticalAlignment="Top" Width="100"/>
-            <TextBlock x:Name="animatedText" Foreground="White" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="137,32.8,0,0" Grid.Row="1" TextWrapping="Wrap" FontFamily="Arial Black" Opacity ="1.0" FontSize="50" FontStyle="Italic" VerticalAlignment="Top" RenderTransformOrigin="0.487,0.451" Height="172" Width="479"/>
+            <k:KinectTileButton k:Name="Button0" Background ="#6e08b2" Foreground ="White" Content="Colour Stream" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Height="80" Width="150" FontSize="15" Click="ColourStreamClick"/>
+            <k:KinectTileButton k:Name="Button1" Background ="#6e08b2" Foreground ="White" Content="Depth Stream" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Center" Height="80" Width="150" FontSize="15" Click="DepthStreamClick"/>
+                <k:KinectTileButton k:Name="Button2" Background ="#6e08b2" Foreground ="White" Content="Skeleton Stream" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Center" Height="80" Width="150" FontSize="15" Click="SkeletonStreamClick"/>
+                <k:KinectUserViewer k:Name="userViewer" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                <TextBlock x:Name="animatedText" Foreground="White" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="137,32.8,0,0" Grid.Row="1" TextWrapping="Wrap" FontFamily="Arial Black" Opacity ="1.0" FontSize="50" FontStyle="Italic" VerticalAlignment="Top" RenderTransformOrigin="0.487,0.451" Height="172" Width="479"/>
         </Grid>
         <StatusBar Grid.Row="3" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="DarkSlateGray">
             <StatusBarItem Padding="0 0 0 10">
@@ -71,4 +73,5 @@
             </StatusBarItem>
         </StatusBar>
     </Grid>
+    </k:KinectRegion>
 </Window>
