@@ -140,20 +140,20 @@ namespace App2
             //Average Knee Y Position
             float kneesY = (skeleton.Joints[JointType.KneeLeft].Position.Y + skeleton.Joints[JointType.KneeRight].Position.Y) / 2;
             float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
-            Debug.WriteLine("Hip Centre: " + skeleton.Joints[JointType.HipCenter].Position.Y + "\nKneesY Varible: " + kneesY +
-                "\n Right Knee: " + skeleton.Joints[JointType.KneeRight].Position.Y + "\nLeft Knee:" + skeleton.Joints[JointType.KneeLeft].Position.Y);
 
-            if (skeleton.Joints[JointType.AnkleLeft].Position.Y > (skeleton.Joints[JointType.FootLeft].Position.Y + (0.1 * skeletonHeight)))
+            Debug.WriteLine("Hip Centre: " + skeleton.Joints[JointType.HipCenter].Position.Y + "\r\nKneesY Varible: " + kneesY);
+
+            if (skeleton.Joints[JointType.AnkleLeft].Position.Y > (skeleton.Joints[JointType.FootLeft].Position.Y + (0.05 * skeletonHeight)))
             {
                 jointErrorDict.AddOrUpdate("AnkleLeft", "Left ankle coming off floor.", (key, oldValue) => "Left ankle coming off floor.");
             }
 
-            if (skeleton.Joints[JointType.AnkleRight].Position.Y > (skeleton.Joints[JointType.FootRight].Position.Y + (0.1 * skeletonHeight)))
+            if (skeleton.Joints[JointType.AnkleRight].Position.Y > (skeleton.Joints[JointType.FootRight].Position.Y + (0.05 * skeletonHeight)))
             {
                 jointErrorDict.AddOrUpdate("AnkleRight", "Right ankle coming off floor.", (key, oldValue) => "Right ankle coming off floor.");
             }
 
-            if (skeleton.Joints[JointType.Head].Position.Z < (kneesZ - 0.05 * skeletonHeight))
+            if (skeleton.Joints[JointType.Head].Position.Z < (kneesZ - 0.07 * skeletonHeight))
             {
                 jointErrorDict.AddOrUpdate("Head", "Head coming too far forward.", (key, oldValue) => "Head coming too far forward.");
             }
@@ -178,7 +178,7 @@ namespace App2
                 jointErrorDict.AddOrUpdate("KneeRight", "Right knee off line.", (key, oldValue) => "Right knee off line");
             }
 
-            if (skeleton.Joints[JointType.HipCenter].Position.Y <= kneesY)
+            if ((skeleton.Joints[JointType.HipCenter].Position.Y - 0.25 * skeletonHeight) <= kneesY)
             {
                 depthAchieved = true;
                 if (jointErrorDict.ContainsKey("HipCentre"))
@@ -190,6 +190,11 @@ namespace App2
             else if (depthAchieved == false)
             {
                 jointErrorDict.AddOrUpdate("HipCentre", "Didn't achieve parallel depth", (key, oldValue) => "Didn't achieve parallel depth");
+            }
+
+            if (CheckStartingPos(skeleton))
+            {
+                depthAchieved = false;
             }
         }
     }
