@@ -105,8 +105,8 @@ namespace App2
                                 var wristRight = sd.Joints[JointType.WristRight];
                                 var scaledRightHand = wristRight.ScaleTo((int)(SystemParameters.PrimaryScreenWidth), (int)(SystemParameters.PrimaryScreenHeight), SkeletonMaxX, SkeletonMaxY);
 
-                                var cursorX = (int)(scaledRightHand.Position.X) + 10;
-                                var cursorY = (int)(scaledRightHand.Position.Y) + 10;
+                                var cursorX = (int)(scaledRightHand.Position.X * 1.2);
+                                var cursorY = (int)(scaledRightHand.Position.Y * 1.2);
 
                                 Canvas.SetLeft(CursorImage, cursorX);
                                 Canvas.SetTop(CursorImage, cursorY);
@@ -230,12 +230,12 @@ namespace App2
 
                 if (isEmpty)
                 {
-                    foreach (KeyValuePair<String, ColorImagePoint> entry in skel.getJointPointDict().ToList())
+                    foreach (KeyValuePair<String, ColorImagePoint> entry in skel.getJointPointDict())
                     {
                         dict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
                         keys.Add(entry.Key);
                     }
-                    foreach (KeyValuePair<String, String> entry in exercise.GetDictionary().ToList())
+                    foreach (KeyValuePair<String, String> entry in exercise.GetDictionary())
                     {
                         squatDict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
                     }
@@ -245,14 +245,14 @@ namespace App2
                 {
                     foreach (var key in keys)
                     {
-                        foreach (KeyValuePair<String, ColorImagePoint> realEntry in skel.getJointPointDict().ToList())
+                        foreach (KeyValuePair<String, ColorImagePoint> realEntry in skel.getJointPointDict())
                         {
                             if (key == realEntry.Key)
                             {
                                 dict[key] = realEntry.Value;
                             }
                         }
-                        foreach (KeyValuePair<String, String> realEntry in exercise.GetDictionary().ToList())
+                        foreach (KeyValuePair<String, String> realEntry in exercise.GetDictionary())
                         {
                             if (key == realEntry.Key)
                             {
@@ -284,7 +284,7 @@ namespace App2
                             {
                                 this.Dispatcher.Invoke(() =>
                                 {
-                                    DisplayTextOnce("Starting Position Found - Squat!");
+                                    DisplayTextOnce("Starting Position Found - Go!");
                                     DrawDots(Brushes.SpringGreen, item.Key, item.Value);
                                 });
                             }
@@ -341,11 +341,6 @@ namespace App2
             Thread getDict = new Thread(() => GetDictionary(skeletonPos, squatMode));
             getDict.Start();
 
-            if (squatMode.CheckStartPosFound())
-            {
-                DisplayText("Starting Position Found - Squat!");
-                
-            }
             squatMode.StartExercise(sensor);
 
             //Change of UI
@@ -374,10 +369,6 @@ namespace App2
             Thread getDict = new Thread(() => GetDictionary(skeletonPos, overheadPress));
             getDict.Start();
 
-            if (overheadPress.CheckStartPosFound()) {
-                DisplayText("Starting Position Found - Press!");
-            }
-
             overheadPress.StartExercise(sensor);
 
             this.statusBarText.Text = "Overhead press mode activated";
@@ -405,11 +396,6 @@ namespace App2
 
             Thread getDict = new Thread(() => GetDictionary(skeletonPos, deadlift));
             getDict.Start();
-
-            if (deadlift.CheckStartPosFound())
-            {
-                DisplayText("Starting Position Found - Lift!");
-            }
 
             deadlift.StartExercise(sensor);
 
