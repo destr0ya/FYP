@@ -148,7 +148,7 @@ namespace App2
                 jointErrorDict.AddOrUpdate("AnkleLeft", "Left ankle coming off floor.", (key, oldValue) => "Left ankle coming off floor.");
             }
 
-            if (skeleton.Joints[JointType.AnkleRight].Position.Y > (skeleton.Joints[JointType.FootRight].Position.Y + (0.1 * skeletonHeight)));
+            if (skeleton.Joints[JointType.AnkleRight].Position.Y > (skeleton.Joints[JointType.FootRight].Position.Y + (0.1 * skeletonHeight)))
             {
                 jointErrorDict.AddOrUpdate("AnkleRight", "Right ankle coming off floor.", (key, oldValue) => "Right ankle coming off floor.");
             }

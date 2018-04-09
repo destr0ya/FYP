@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Data;
+using System.Collections.Concurrent;
 
 namespace App2
 {
@@ -14,9 +15,9 @@ namespace App2
     {
         private KinectSensor sensor;
         private Skeleton[] skeletons = new Skeleton[6];
-        private Dictionary<String, ColorImagePoint> jointPointDict = new Dictionary<String, ColorImagePoint>();
+        private ConcurrentDictionary<String, ColorImagePoint> jointPointDict = new ConcurrentDictionary<String, ColorImagePoint>();
 
-        internal Dictionary<String, ColorImagePoint> getJointPointDict()
+        internal ConcurrentDictionary<String, ColorImagePoint> getJointPointDict()
         {
             return jointPointDict;
         }
@@ -168,128 +169,20 @@ namespace App2
                     ColorImageFormat.RgbResolution640x480Fps30);
 
                 //Set Points
-                if (jointPointDict.ContainsKey("Head")) {
-                    jointPointDict.Remove("Head");
-                    jointPointDict.Add("Head", headColorPoint);
-                } else
-                {
-                    jointPointDict.Add("Head", headColorPoint);
-                }
-                if (jointPointDict.ContainsKey("ShoulderLeft"))
-                {
-                    jointPointDict.Remove("ShoulderLeft");
-                    jointPointDict.Add("ShoulderLeft", leftShoulderColorPoint);
-                } else
-                {
-                    jointPointDict.Add("ShoulderLeft", leftShoulderColorPoint);
-                }
-                if (jointPointDict.ContainsKey("ShoulderRight"))
-                {
-                    jointPointDict.Remove("ShoulderRight");
-                    jointPointDict.Add("ShoulderRight", rightShoulderColorPoint);
-                } else
-                {
-                    jointPointDict.Add("ShoulderRight", rightShoulderColorPoint);
-                }
-                if (jointPointDict.ContainsKey("ElbowRight"))
-                {
-                    jointPointDict.Remove("ElbowRight");
-                    jointPointDict.Add("ElbowRight", rightEColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("ElbowRight", rightEColorPoint);
-                }
-                if (jointPointDict.ContainsKey("ElbowLeft"))
-                {
-                    jointPointDict.Remove("ElbowLeft");
-                    jointPointDict.Add("ElbowLeft", leftEColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("ElbowLeft", leftEColorPoint);
-                }
-                if (jointPointDict.ContainsKey("HandRight"))
-                {
-                    jointPointDict.Remove("HandRight");
-                    jointPointDict.Add("HandRight", rightHdColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("HandRight", rightHdColorPoint);
-                }
-                if (jointPointDict.ContainsKey("HandLeft"))
-                {
-                    jointPointDict.Remove("HandLeft");
-                    jointPointDict.Add("HandLeft", leftHdColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("HandLeft", leftHdColorPoint);
-                }
-                if (jointPointDict.ContainsKey("HipRight"))
-                {
-                    jointPointDict.Remove("HipRight");
-                    jointPointDict.Add("HipRight", rightHpColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("HipRight", rightHpColorPoint);
-                }
-                if (jointPointDict.ContainsKey("HipLeft"))
-                {
-                    jointPointDict.Remove("HipLeft");
-                    jointPointDict.Add("HipLeft", leftHpColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("HipLeft", leftHpColorPoint);
-                }
-                if (jointPointDict.ContainsKey("HipCentre"))
-                {
-                    jointPointDict.Remove("HipCentre");
-                    jointPointDict.Add("HipCentre", centreHpColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("HipCentre", centreHpColorPoint);
-                }
-                if (jointPointDict.ContainsKey("KneeRight"))
-                {
-                    jointPointDict.Remove("KneeRight");
-                    jointPointDict.Add("KneeRight", rightKColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("KneeRight", rightKColorPoint);
-                }
-                if (jointPointDict.ContainsKey("KneeLeft"))
-                {
-                    jointPointDict.Remove("KneeLeft");
-                    jointPointDict.Add("KneeLeft", leftKColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("KneeLeft", leftKColorPoint);
-                }
-                if (jointPointDict.ContainsKey("AnkleRight"))
-                {
-                    jointPointDict.Remove("AnkleRight");
-                    jointPointDict.Add("AnkleRight", rightAColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("AnkleRight", rightAColorPoint);
-                }
-                if (jointPointDict.ContainsKey("AnkleLeft"))
-                {
-                    jointPointDict.Remove("AnkleLeft");
-                    jointPointDict.Add("AnkleLeft", leftAnkleColorPoint);
-                }
-                else
-                {
-                    jointPointDict.Add("AnkleLeft", leftAnkleColorPoint);
-                }
+                jointPointDict.AddOrUpdate("Head", headColorPoint, (key, oldValue) => headColorPoint);
+                jointPointDict.AddOrUpdate("ShoulderLeft", leftShoulderColorPoint, (key, oldValue) => leftShoulderColorPoint);
+                jointPointDict.AddOrUpdate("ShoulderRight", rightShoulderColorPoint, (key, oldValue) => rightShoulderColorPoint);
+                jointPointDict.AddOrUpdate("ElbowRight", rightEColorPoint, (key, oldValue) => rightEColorPoint);
+                jointPointDict.AddOrUpdate("ElbowLeft", leftEColorPoint, (key, oldValue) => leftEColorPoint);
+                jointPointDict.AddOrUpdate("HandRight", rightHdColorPoint, (key, oldValue) => rightHdColorPoint);
+                jointPointDict.AddOrUpdate("HandLeft", leftHdColorPoint, (key, oldValue) => leftHdColorPoint);
+                jointPointDict.AddOrUpdate("HipRight", rightHpColorPoint, (key, oldValue) => rightHpColorPoint);
+                jointPointDict.AddOrUpdate("HipLeft", leftHpColorPoint, (key, oldValue) => leftHpColorPoint);
+                jointPointDict.AddOrUpdate("HipCentre", centreHpColorPoint, (key, oldValue) => centreHpColorPoint);
+                jointPointDict.AddOrUpdate("KneeRight", rightKColorPoint, (key, oldValue) => rightKColorPoint);
+                jointPointDict.AddOrUpdate("KneeLeft", leftKColorPoint, (key, oldValue) => leftKColorPoint);
+                jointPointDict.AddOrUpdate("AnkleRight", rightAColorPoint, (key, oldValue) => rightAColorPoint);
+                jointPointDict.AddOrUpdate("AnkleLeft", leftAnkleColorPoint, (key, oldValue) => leftAnkleColorPoint);
             }        
         }
 

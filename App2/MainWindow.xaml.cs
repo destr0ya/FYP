@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
-using System.IO;
-using System.Windows.Forms;
 using System.Threading;
 using System.ComponentModel;
-using System.Timers;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Windows.Forms;
+using Coding4Fun.Kinect.Wpf;
+using System.Windows.Media.Imaging;
 
 namespace App2
 {
@@ -27,13 +21,19 @@ namespace App2
     /// </summary>
     public partial class MainWindow : Window
     {
-
         private KinectSensor sensor;
         private String noKinectReady = "No Kinect connected.";
         ConcurrentDictionary<String, ColorImagePoint> dict = new ConcurrentDictionary<string, ColorImagePoint>();
         ConcurrentDictionary<String, String> squatDict = new ConcurrentDictionary<string, string>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
-        bool startPostFound = false;
+        bool startPosFound = false;
+
+        private const float ClickHoldingRectThreshold = 0.05f;
+        private Rect _clickHoldingLastRect;
+        private readonly Stopwatch _clickHoldingTimer = new Stopwatch();
+
+        private const float SkeletonMaxX = 0.60f;
+        private const float SkeletonMaxY = 0.40f;
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
@@ -51,7 +51,10 @@ namespace App2
                 ColourStream colourStream = new ColourStream();
                 Image.Source = colourStream.StartColourStream(sensor);
                 Button0.Background = Brushes.Gray;
+                this.sensor.DepthStream.Enable();
+                this.sensor.SkeletonStream.Enable();
 
+                sensor.AllFramesReady += SensorAllFramesReady;
             }
 
             if (null == this.sensor)
@@ -67,6 +70,100 @@ namespace App2
                 this.sensor.Stop();
             }
             Environment.Exit(Environment.ExitCode);
+        }
+
+        void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
+        {
+            SensorSkeletonFrameReady(e);
+        }
+
+        void SensorSkeletonFrameReady(AllFramesReadyEventArgs e)
+        {
+            if (!startPosFound)
+            {
+                using (SkeletonFrame skeletonFrameData = e.OpenSkeletonFrame())
+                {
+                    if (skeletonFrameData == null)
+                    {
+                        return;
+                    }
+
+                    var allSkeletons = new Skeleton[skeletonFrameData.SkeletonArrayLength];
+
+                    skeletonFrameData.CopySkeletonDataTo(allSkeletons);
+
+                    foreach (Skeleton sd in allSkeletons)
+                    {
+                        // the first found/tracked skeleton moves the mouse cursor
+                        if (sd.TrackingState == SkeletonTrackingState.Tracked)
+                        {
+                            // make sure both hands are tracked
+                            if (sd.Joints[JointType.HandRight].TrackingState == JointTrackingState.Tracked)
+                            {
+                                BitmapImage image = new BitmapImage(new Uri("/Images/hand.png", UriKind.Relative));
+                                CursorImage.Source = image;
+                                var wristRight = sd.Joints[JointType.WristRight];
+                                var scaledRightHand = wristRight.ScaleTo((int)(SystemParameters.PrimaryScreenWidth), (int)(SystemParameters.PrimaryScreenHeight), SkeletonMaxX, SkeletonMaxY);
+
+                                var cursorX = (int)(scaledRightHand.Position.X) + 10;
+                                var cursorY = (int)(scaledRightHand.Position.Y) + 10;
+
+                                Canvas.SetLeft(CursorImage, cursorX);
+                                Canvas.SetTop(CursorImage, cursorY);
+
+                                var leftClick = CheckForClickHold(scaledRightHand);
+                                NativeMethods.SendMouseInput(cursorX, cursorY, (int)(SystemParameters.PrimaryScreenWidth), (int)(SystemParameters.PrimaryScreenHeight), leftClick);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool CheckForClickHold(Joint hand)
+        {
+            // This does one handed click when you hover for the allotted time.  It gives a false positive when you hover accidentally.
+            var x = hand.Position.X;
+            var y = hand.Position.Y;
+
+            var screenwidth = (int)SystemParameters.PrimaryScreenWidth;
+            var screenheight = (int)SystemParameters.PrimaryScreenHeight;
+            var clickwidth = (int)(screenwidth * ClickHoldingRectThreshold);
+            var clickheight = (int)(screenheight * ClickHoldingRectThreshold);
+
+            var newClickHold = new Rect(x - clickwidth, y - clickheight, clickwidth * 2, clickheight * 2);
+
+            if (_clickHoldingLastRect != Rect.Empty)
+            {
+                if (newClickHold.IntersectsWith(_clickHoldingLastRect))
+                {
+                    if ((int)_clickHoldingTimer.ElapsedMilliseconds > 2000)
+                    {
+                        _clickHoldingTimer.Stop();
+                        _clickHoldingLastRect = Rect.Empty;
+                        return true;
+                    }
+
+                    if (!_clickHoldingTimer.IsRunning)
+                    {
+                        _clickHoldingTimer.Reset();
+                        _clickHoldingTimer.Start();
+                    }
+                    return false;
+                }
+
+                _clickHoldingTimer.Stop();
+                _clickHoldingLastRect = newClickHold;
+                return false;
+            }
+
+            _clickHoldingLastRect = newClickHold;
+            if (!_clickHoldingTimer.IsRunning)
+            {
+                _clickHoldingTimer.Reset();
+                _clickHoldingTimer.Start();
+            }
+            return false;
         }
 
         private void ColourStreamClick(object sender, RoutedEventArgs e)
@@ -211,7 +308,7 @@ namespace App2
 
         private void DisplayTextOnce(String text)
         {
-            if (!startPostFound)
+            if (!startPosFound)
             {
                 var backgroundWorker = new BackgroundWorker();
                 backgroundWorker.DoWork += (s, ea) => Thread.Sleep(TimeSpan.FromSeconds(2));
@@ -222,7 +319,7 @@ namespace App2
 
                 this.animatedText.Text = text;
                 backgroundWorker.RunWorkerAsync();
-                startPostFound = true;
+                startPosFound = true;
             }
         }
 
@@ -333,8 +430,8 @@ namespace App2
                 {
                     ellipse.Fill = colour;
                     ellipse.Stroke = Brushes.Black;
-                    Canvas.SetLeft(ellipse, point.X + 50);
-                    Canvas.SetTop(ellipse, point.Y - ellipse.Width / 2);
+                    Canvas.SetLeft(ellipse, (point.X + 50) * 2);
+                    Canvas.SetTop(ellipse, point.Y * 2);
                 }
             }
         }
