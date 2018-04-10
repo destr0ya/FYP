@@ -24,16 +24,14 @@ namespace App2
         private KinectSensor sensor;
         private String noKinectReady = "No Kinect connected.";
         ConcurrentDictionary<String, ColorImagePoint> dict = new ConcurrentDictionary<string, ColorImagePoint>();
-        ConcurrentDictionary<String, String> squatDict = new ConcurrentDictionary<string, string>();
+        ConcurrentDictionary<String, String> exerciseDict = new ConcurrentDictionary<string, string>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
         bool startPosFound = false;
+        ExerciseObj exerciseObj;
 
         private const float ClickHoldingRectThreshold = 0.05f;
         private Rect _clickHoldingLastRect;
         private readonly Stopwatch _clickHoldingTimer = new Stopwatch();
-
-        private const float SkeletonMaxX = 0.60f;
-        private const float SkeletonMaxY = 0.40f;
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
@@ -103,10 +101,12 @@ namespace App2
                                 BitmapImage image = new BitmapImage(new Uri("/Images/hand.png", UriKind.Relative));
                                 CursorImage.Source = image;
                                 var wristRight = sd.Joints[JointType.WristRight];
-                                var scaledRightHand = wristRight.ScaleTo((int)(SystemParameters.PrimaryScreenWidth), (int)(SystemParameters.PrimaryScreenHeight), SkeletonMaxX, SkeletonMaxY);
+                                //var scaledRightHand = wristRight.ScaleTo((int)(SystemParameters.PrimaryScreenWidth), (int)(SystemParameters.PrimaryScreenHeight), SkeletonMaxX, SkeletonMaxY);
+                                var scaledRightHand = wristRight.ScaleTo(1500, 1500);
 
-                                var cursorX = (int)(scaledRightHand.Position.X * 1.2);
-                                var cursorY = (int)(scaledRightHand.Position.Y * 1.2);
+
+                                var cursorX = (int)(scaledRightHand.Position.X + 10); 
+                                var cursorY = (int)(scaledRightHand.Position.Y + 10);
 
                                 Canvas.SetLeft(CursorImage, cursorX);
                                 Canvas.SetTop(CursorImage, cursorY);
@@ -126,8 +126,10 @@ namespace App2
             var x = hand.Position.X;
             var y = hand.Position.Y;
 
-            var screenwidth = (int)SystemParameters.PrimaryScreenWidth;
-            var screenheight = (int)SystemParameters.PrimaryScreenHeight;
+            //var screenwidth = (int)SystemParameters.PrimaryScreenWidth;
+            //var screenheight = (int)SystemParameters.PrimaryScreenHeight;
+            var screenwidth = 1500;
+            var screenheight = 1500;
             var clickwidth = (int)(screenwidth * ClickHoldingRectThreshold);
             var clickheight = (int)(screenheight * ClickHoldingRectThreshold);
 
@@ -220,9 +222,11 @@ namespace App2
             List<String> keys = new List<String>();
             bool isEmpty;
 
+            exerciseObj = new ExerciseObj(exercise.ToString());
+
             for (; !_isStopping.WaitOne(waitInterval);)
             {
-                squatDict.Clear();
+                exerciseDict.Clear();
                 using (var dictionaryEnum = dict.GetEnumerator())
                 {
                     isEmpty = !dictionaryEnum.MoveNext();
@@ -237,7 +241,7 @@ namespace App2
                     }
                     foreach (KeyValuePair<String, String> entry in exercise.GetDictionary())
                     {
-                        squatDict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
+                        exerciseDict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
                     }
                 }
 
@@ -256,7 +260,7 @@ namespace App2
                         {
                             if (key == realEntry.Key)
                             {
-                                squatDict[key] = realEntry.Value;
+                                exerciseDict[key] = realEntry.Value;
                             }
                         }
                     }
@@ -274,11 +278,12 @@ namespace App2
                     else if (exercise.CheckStartPosFound())
                     {
                         {
-                            if (squatDict.ContainsKey(item.Key))
+                            if (exerciseDict.ContainsKey(item.Key))
                             {
                                 this.Dispatcher.Invoke(() =>
                                 {
                                     DrawDots(Brushes.Red, item.Key, item.Value);
+                                    exerciseObj.Add(item.Key, exerciseDict[item.Key]);
                                 });
                             } else
                             {
@@ -420,6 +425,18 @@ namespace App2
                     Canvas.SetTop(ellipse, point.Y * 2);
                 }
             }
+        }
+
+        private void Finished(object sender, RoutedEventArgs e)
+        {
+            //Stop threads
+            //Environment.Exit(Environment.ExitCode);
+
+            //Open new window
+            var results = new ResultsWindow();
+            //string resultsString = exerciseObj.Get
+            results.AddContent(exerciseObj.GetContent());
+            results.Show();
         }
     }
 }
