@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Forms;
+
 
 namespace App2
 {
@@ -19,14 +14,11 @@ namespace App2
     /// </summary>
     public partial class ResultsWindow : Window
     {
-        public ResultsWindow()
+        public ResultsWindow(List<PassingObject> content)
         {
             InitializeComponent();
-        }
-
-        public void AddContent(string content)
-        {
-            resultsBlock.Text = content;
+            dataGrid.ItemsSource = content;
+            DataContext = this;
         }
     }
 }

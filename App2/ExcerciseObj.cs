@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,58 +11,57 @@ namespace App2
     {
         static string name;
         int reps;
-        static Dictionary<string, int> count = new Dictionary<string, int>();
-        bool isEmpty;
+        static ConcurrentDictionary<string, int> count = new ConcurrentDictionary<string, int>();
+        static ConcurrentDictionary<string, List<string>> values = new ConcurrentDictionary<string, List<string>>();
 
         public ExerciseObj (string name1)
         {
             name = name1;
         }
 
-
-
-        internal void Add(string key, string v)
+        internal void Add(string key, List<string> v)
         {
-            using (var dictionaryEnum = count.GetEnumerator())
+            if (!count.ContainsKey(key))
             {
-                isEmpty = !dictionaryEnum.MoveNext();
-            }
-            
-            if (isEmpty)
+                count.TryAdd(key, 1);
+            } else
             {
-                count.Add(key, 1);
-            }
-            else
-            {
-                if (!count.ContainsKey(key))
-                {
-                    count.Add(key, 1);
-                }
-                else
-                {
-                    int i = count[key];
-                    count.Remove(key);
-                    count.Add(key, i++);
-                }
+                count.AddOrUpdate(key, count[key]++, (theKey, oldValue) => count[key]);
+                values.AddOrUpdate(key, v, (theKey, oldValue) => v);
             }
         }
 
-        internal String GetContent()
+        internal List<PassingObject> GetContent()
         {
-            String compose = "Name: " + name;
+            List<PassingObject> toPass = new List<PassingObject>();
             foreach (KeyValuePair<string, int> pair in count)
             {
-                compose += "\r\nJoint: " + pair.Key;
-                compose += "\r\nCount: " + pair.Value;
+                foreach(KeyValuePair<String, List<string>> value in values) {
+                    if (pair.Key.Equals(value.Key))
+                    {
+                        if ((pair.Value / 20 > 2))
+                        {
+                            PassingObject passObj = new PassingObject();
+                            passObj.exerciseName = "Name: " + name;
+                            passObj.joint = pair.Key;
+                            passObj.errorTime = pair.Value / 20;
+                            passObj.problem = value.Value[0];
+                            passObj.solution = value.Value[1];
+                            toPass.Add(passObj);
+                        }
+                    }
+                }
             }
-            return compose;
+            return toPass;
         }
     }
 
-    internal class JointInfo
+    public class PassingObject
     {
-        string name;
-        string problem;
-        string solution;
+        public string exerciseName { get; set; }
+        public string joint { get; set; }
+        public int errorTime {get; set;}
+        public string problem { get; set; }
+        public string solution { get; set; }
     }
 }

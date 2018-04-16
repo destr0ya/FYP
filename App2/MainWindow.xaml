@@ -20,6 +20,7 @@
                 <Ellipse x:Name="ElbowLeftEllipse" Height="30" Width="30"/>
                 <Ellipse x:Name="HandRightEllipse" Height="30" Width="30"/>
                 <Ellipse x:Name="HandLeftEllipse" Height="30" Width="30"/>
+                <Ellipse x:Name="SpineEllipse" Height="30" Width="30"/>
                 <Ellipse x:Name="HipLeftEllipse" Height="30" Width="30"/>
                 <Ellipse x:Name="HipRightEllipse" Height="30" Width="30"/>
                 <Ellipse x:Name="HipCentreEllipse" Height="30" Width="30"/>
