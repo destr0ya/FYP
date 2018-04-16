@@ -5,9 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:App2"
         mc:Ignorable="d"
-        Title="ResultsWindow" Height="300" Width="300">
-    <Grid>
-        <TextBlock Name="resultsBlock" HorizontalAlignment="Left" Margin="39,49,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="150" Width="182"/>
-
+        Title="ResultsWindow" Height="500" Width="500">
+    <Grid Name="resultsGrid">
+        <DataGrid Name="dataGrid" AutoGenerateColumns="False" CanUserResizeColumns="True" CanUserAddRows="False" IsReadOnly="True" Width="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="column0" Header="Joint" Binding="{Binding joint}"/>
+                <DataGridTextColumn x:Name="column1" Header="Time spent" Binding="{Binding errorTime}"/>
+                <DataGridTextColumn x:Name="column2" Header="Potential Cause" Binding="{Binding problem}"/>
+                <DataGridTextColumn x:Name="column3" Header="Solution" Binding="{Binding solution}" />
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

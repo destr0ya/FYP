@@ -15,9 +15,9 @@ namespace App2
         private static bool startingPosFound;
         private static float skeletonHeight = 0.0f;
         private static float standingHipHeight = 0.0f;
-        private static ConcurrentDictionary<String, String> jointErrorDict = new ConcurrentDictionary<String, String>();
+        private static ConcurrentDictionary<string, List<string>> jointErrorDict = new ConcurrentDictionary<string, List<string>>();
 
-        public ConcurrentDictionary<string, string> GetDictionary()
+        public ConcurrentDictionary<string, List<string>> GetDictionary()
         {
             return jointErrorDict;
         }
@@ -132,32 +132,72 @@ namespace App2
         {
             jointErrorDict.Clear();
 
-            if (skeleton.Joints[JointType.Head].Position.Z > skeleton.Joints[JointType.HipCenter].Position.Z)
+            float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
+            float hipsZ = (skeleton.Joints[JointType.HipLeft].Position.Z + skeleton.Joints[JointType.HipRight].Position.Z) / 2;
+            //Change to shoulders and knees
+            if (skeleton.Joints[JointType.Head].Position.Z > (hipsZ - 0.13 * skeletonHeight))
             {
-                //Debug this when someone is home
-                jointErrorDict.AddOrUpdate("Head", "Leaning too far back at the end.", (key, oldValue) => "Leaning too far back at the end.");
+                List<string> list = new List<string>
+                {
+                    "Head coming too far forward",
+                    "Your weight is most likely too fair forward. This puts too much strain on the upper back and reduces power. Try keeping the weight closer to your body."
+                };
+                jointErrorDict.AddOrUpdate("Head", list, (key, oldValue) => list);
             }
 
-            float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
-
-            if (skeleton.Joints[JointType.ShoulderCenter].Position.Z < kneesZ)
+            Debug.WriteLine("ShoulderCentre: " + skeleton.Joints[JointType.ShoulderCenter].Position.Z + "\r\n Knees Z: " + kneesZ);
+            if (skeleton.Joints[JointType.ShoulderCenter].Position.Z < (kneesZ - 0.2 * skeletonHeight))
             {
-                //Debug this when someone is home
-                jointErrorDict.AddOrUpdate("ShoulderLeft", "Leaning too far forward.", (key, oldValue) => "Leaning too far forward.");
-                jointErrorDict.AddOrUpdate("ShoulderRight", "Leaning too far forward.", (key, oldValue) => "Leaning too far forward.");
+                List<string> list = new List<string>
+                {
+                    "Leaning too far back",
+                    "This may be leading to hyperextension and squeezing of the spinal discs. Avoid by finishing without exaggerating a backwards motion."
+                };
+                jointErrorDict.AddOrUpdate("ShoulderLeft", list, (key, oldValue) => list);
+                jointErrorDict.AddOrUpdate("ShoulderRight", list, (key, oldValue) => list);
             }
 
             if (!(skeleton.Joints[JointType.HipRight].Position.X >= (skeleton.Joints[JointType.ShoulderCenter].Position.X + 0.02 * skeletonHeight)))
             {
-                jointErrorDict.AddOrUpdate("HipRight", "Right hip out of line", (key, oldValue) => "Right hip out of line");
+                List<string> list = new List<string>
+                {
+                    "Right hip out of line.",
+                    "This could be a sign of posterior weakness or anterior tighetness. See: https://breakingmuscle.com/fitness/squats-and-hip-dysfunction-2-common-problems-and-how-to-fix-them"
+                };
+                jointErrorDict.AddOrUpdate("HipRight", list, (key, oldValue) => list);
             }
 
             if (!(skeleton.Joints[JointType.HipLeft].Position.X <= skeleton.Joints[JointType.ShoulderCenter].Position.X - 0.02 * skeletonHeight))
             {
-                jointErrorDict.AddOrUpdate("HipLeft", "Left hip coming out of line", (key, oldValue) => "Left hip out of line");
+                List<string> list = new List<string>
+                {
+                    "Left hip out of line.",
+                    "This could be a sign of posterior weakness or anterior tighetness. See: https://breakingmuscle.com/fitness/squats-and-hip-dysfunction-2-common-problems-and-how-to-fix-them"
+                };
+                jointErrorDict.AddOrUpdate("HipLeft", list, (key, oldValue) => list);
             }
 
-            //Insert things for back rounding
+            //Vector calculation for back rounding - check if ShoulderCentre, Spine and HipCentre are colinear
+            float xVector0 = (skeleton.Joints[JointType.HipCenter].Position.X - skeleton.Joints[JointType.ShoulderCenter].Position.X);
+            float yVector0 = (skeleton.Joints[JointType.HipCenter].Position.Y - skeleton.Joints[JointType.ShoulderCenter].Position.Y);
+            float zVector0 = (skeleton.Joints[JointType.HipCenter].Position.Z - skeleton.Joints[JointType.ShoulderCenter].Position.Z);
+
+            float xVector1 = (skeleton.Joints[JointType.Spine].Position.X - skeleton.Joints[JointType.ShoulderCenter].Position.X);
+            float yVector1 = (skeleton.Joints[JointType.Spine].Position.Y - skeleton.Joints[JointType.ShoulderCenter].Position.Y);
+            float zVector1 = (skeleton.Joints[JointType.Spine].Position.Z - skeleton.Joints[JointType.ShoulderCenter].Position.Z);
+
+            //Debug.WriteLine("X: " + Math.Abs(xVector0 % xVector1) + "/r/nY: " + Math.Abs(yVector0 % yVector1) + "/r/nZ: " + Math.Abs(zVector0 % zVector1));
+
+            if (Math.Abs(xVector0 % xVector1) > 0.007 || Math.Abs(yVector0 % yVector1) > 0.07 || Math.Abs(zVector0 % zVector1) > 0.05)
+            {
+                List<string> list = new List<string>
+                {
+                    "Back is rounded.",
+                    "This is the most crucial thing to be aware of when deadlifting. Here is a video to help fix back rounding: https://www.youtube.com/watch?v=ta6NAgDzqgw"
+                };
+                jointErrorDict.AddOrUpdate("Spine", list, (key, oldValue) => list);
+            }
+
         }
     }
 }

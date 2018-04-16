@@ -11,7 +11,7 @@ namespace App2
 {
     interface Exercise
     {
-        ConcurrentDictionary<String, String> GetDictionary();
+        ConcurrentDictionary<String, List<String>> GetDictionary();
         ImageSource ShowImage();
 
         void StartExercise(KinectSensor sensor);

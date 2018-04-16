@@ -17,13 +17,13 @@ namespace App2
         Skeleton[] skeletons = new Skeleton[3];
         private static bool startingPosFound;
         private static float skeletonHeight = 0.0f;
-        private static ConcurrentDictionary<String, String> jointErrorDict = new ConcurrentDictionary<String, String>();
+        private static ConcurrentDictionary<string, List<string>> jointErrorDict = new ConcurrentDictionary<string, List<string>>();
         private static float previousLeftKneeZ = 0.0f;
         private static float previousRightKneeZ = 0.0f;
         private static float previousRightKneeY = 0.0f;
         private static float previousLeftKneeY = 0.0f;
 
-        public ConcurrentDictionary<String, String> GetDictionary()
+        public ConcurrentDictionary<string, List<string>> GetDictionary()
         {
             return jointErrorDict;
         }
@@ -153,13 +153,23 @@ namespace App2
             if (previousLeftKneeY > currentLeftKneeY + 0.005 * skeletonHeight || previousLeftKneeY < currentLeftKneeY - 0.005 * skeletonHeight || 
                 previousLeftKneeZ > currentLeftKneeZ + 0.005 * skeletonHeight || previousLeftKneeZ < currentLeftKneeZ - 0.005 * skeletonHeight)
             {
-                jointErrorDict.AddOrUpdate("KneeLeft", "Knees should not move during overhead press", (key, oldValue) => "Knees should not move during overhead press.");
+                List<string> list = new List<string>
+                {
+                    "Knees should not move during overhead press.",
+                    "This is an exercise for the shoulders, triceps and back. If you cannot lift the weight without using your knees, consider lightening it."
+                };
+                jointErrorDict.AddOrUpdate("KneeLeft", list, (key, oldValue) => list);
             }
 
             if (previousRightKneeY > currentRightKneeY + 0.005 * skeletonHeight || previousRightKneeY < currentRightKneeY - 0.005 * skeletonHeight || 
                 previousRightKneeZ > currentRightKneeZ + 0.005 * skeletonHeight || previousRightKneeZ < currentRightKneeZ - 0.005 * skeletonHeight)
             {
-                jointErrorDict.AddOrUpdate("KneeRight", "Knees should not move during overhead press", (key, oldValue) => "Knees should not move during overhead press.");
+                List<string> list = new List<string>
+                {
+                    "Knees should not move during overhead press.",
+                    "This is an exercise for the shoulders, triceps and back. If you cannot lift the weight without using your knees, consider lightening it."
+                };
+                jointErrorDict.AddOrUpdate("KneeRight", list, (key, oldValue) => list);
             }
 
             //Update previous knee position store
@@ -172,24 +182,44 @@ namespace App2
             if (skeleton.Joints[JointType.ElbowLeft].Position.Z < (skeleton.Joints[JointType.ShoulderLeft].Position.Z - 0.1 * skeletonHeight) ||
                 skeleton.Joints[JointType.ElbowLeft].Position.X < (skeleton.Joints[JointType.HandLeft].Position.X - 0.05 * skeletonHeight))
             {
-                jointErrorDict.AddOrUpdate("ElbowLeft", "Elbows should not flare too far forward or out.", (key, oldValue) => "Elbows should not flare too far forward or out.");
+                List<string> list = new List<string>
+                {
+                    "Elbows should not flare too far forward or out.",
+                    "Keep your elbows close to your side and pointed down. This is safer and will help you lift more weight."
+                };
+                jointErrorDict.AddOrUpdate("ElbowLeft", list, (key, oldValue) => list);
             }
 
             if (skeleton.Joints[JointType.ElbowRight].Position.Z < (skeleton.Joints[JointType.ShoulderRight].Position.Z - 0.1 * skeletonHeight) ||
                 skeleton.Joints[JointType.ElbowRight].Position.X > (skeleton.Joints[JointType.HandRight].Position.X + 0.05 * skeletonHeight))
             {
-                jointErrorDict.AddOrUpdate("ElbowRight", "Elbows should not flare too far forward or out", (key, oldValue) => "Elbows should not flare too far forward or out.");
+                List<string> list = new List<string>
+                {
+                    "Elbows should not flare too far forward or out.",
+                    "Keep your elbows close to your side and pointed down. This is safer and will help you lift more weight."
+                };
+                jointErrorDict.AddOrUpdate("ElbowRight", list, (key, oldValue) => list);
             }
 
             //Hand Correction
             if (skeleton.Joints[JointType.HandRight].Position.Y < (skeleton.Joints[JointType.HandLeft].Position.Y - 0.05 * skeletonHeight))
             {
-                jointErrorDict.AddOrUpdate("HandRight", "Right hand is slower rising than left hand", (key, oldValue) => "Right hand is slower rising than left hand");
+                List<string> list = new List<string>
+                {
+                    "Right hand is rising slower than the left hand",
+                    "This is a sign of an imbalance in the right shoulder. Consider doing isolation exercises for that shoulder until it is as strong as the other. For example, single arm dumbbell press: https://www.youtube.com/watch?v=NVnyDQqmhPo"
+                };
+                jointErrorDict.AddOrUpdate("HandRight", list, (key, oldValue) => list);
             }
 
             if (skeleton.Joints[JointType.HandRight].Position.Y > skeleton.Joints[JointType.HandLeft].Position.Y + 0.05 * skeletonHeight)
             {
-                jointErrorDict.AddOrUpdate("HandLeft", "Left hand is slower rising than right hand", (key, oldValue) => "Left hand is slower rising than right hand");
+                List<string> list = new List<string>
+                {
+                    "Left hand is rising slower than the right hand",
+                    "This is a sign of an imbalance in the left shoulder. Consider doing isolation exercises for that shoulder until it is as strong as the other. For example, single arm dumbbell press: https://www.youtube.com/watch?v=NVnyDQqmhPo"
+                };
+                jointErrorDict.AddOrUpdate("HandLeft", list, (key, oldValue) => list);
             }
 
             float handLineY = (skeleton.Joints[JointType.HandRight].Position.Y + skeleton.Joints[JointType.HandLeft].Position.Y) / 2;
@@ -198,14 +228,24 @@ namespace App2
 
             if ((handLineY > skeleton.Joints[JointType.Head].Position.Y) && (handLineZ > shoulderLineZ + (0.1 * skeletonHeight)))
             {
-                jointErrorDict.AddOrUpdate("HandLeft", "Bringing the bar too far back at the end.", (key, oldValue) => "Bringing the bar too far back at the end");
-                jointErrorDict.AddOrUpdate("HandRight", "Bringing the bar too far back at the end.", (key, oldValue) => "Bringing the bar too far back at the end");
+                List<string> list = new List<string>
+                {
+                    "Bringing the bar too far back at the end.",
+                    "This puts unnecessary strain on the shoulders and will cause you to lose balance. Try to keep it directly over your head."
+                };
+                jointErrorDict.AddOrUpdate("HandLeft", list, (key, oldValue) => list);
+                jointErrorDict.AddOrUpdate("HandRight", list, (key, oldValue) => list);
             }
 
             if ((handLineY > skeleton.Joints[JointType.Head].Position.Y) && (handLineZ < shoulderLineZ - (0.1 * skeletonHeight)))
             {
-                jointErrorDict.AddOrUpdate("HandLeft", "Bringing the bar too far forward at the end.", (key, oldValue) => "Bringing the bar too far forward at the end");
-                jointErrorDict.AddOrUpdate("HandRight", "Bringing the bar too far forward at the end.", (key, oldValue) => "Bringing the bar too far forward at the end");
+                List<string> list = new List<string>
+                {
+                    "Bringing the bar too far forward at the end.",
+                    "This puts unnecessary strain on the shoulders and will cause you to lose balance. Try to keep it directly over your head."
+                };
+                jointErrorDict.AddOrUpdate("HandLeft", list, (key, oldValue) => list);
+                jointErrorDict.AddOrUpdate("HandRight", list, (key, oldValue) => list);
             }
         }
     }

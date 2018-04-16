@@ -22,9 +22,9 @@ namespace App2
         private static bool startingPosFound;
         private static bool depthAchieved;
         private static float skeletonHeight = 0.0f;
-        private static ConcurrentDictionary<String, String> jointErrorDict = new ConcurrentDictionary<String, String>();
+        private static ConcurrentDictionary<string, List<string>> jointErrorDict = new ConcurrentDictionary<string, List<string>>();
 
-        public ConcurrentDictionary<String, String> GetDictionary()
+        public ConcurrentDictionary<string, List<string>> GetDictionary()
         {
             return jointErrorDict;
         }
@@ -131,7 +131,6 @@ namespace App2
             {
                 return false; 
             }
-
         }
 
         internal static void TrackSquat(Skeleton skeleton)
@@ -141,55 +140,94 @@ namespace App2
             float kneesY = (skeleton.Joints[JointType.KneeLeft].Position.Y + skeleton.Joints[JointType.KneeRight].Position.Y) / 2;
             float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
 
-            Debug.WriteLine("Hip Centre: " + skeleton.Joints[JointType.HipCenter].Position.Y + "\r\nKneesY Varible: " + kneesY);
 
             if (skeleton.Joints[JointType.AnkleLeft].Position.Y > (skeleton.Joints[JointType.FootLeft].Position.Y + (0.05 * skeletonHeight)))
             {
-                jointErrorDict.AddOrUpdate("AnkleLeft", "Left ankle coming off floor.", (key, oldValue) => "Left ankle coming off floor.");
+                List<string> list = new List<string>
+                {
+                    "Left ankle coming off floor",
+                    "This could be a sign of tight calves, poor ankle mobility or core instability. See: https://woman.thenest.com/proper-squat-technique-heels-coming-off-floor-20267.html"
+                };
+                jointErrorDict.AddOrUpdate("AnkleLeft", list, (key, oldValue) => list);
             }
 
             if (skeleton.Joints[JointType.AnkleRight].Position.Y > (skeleton.Joints[JointType.FootRight].Position.Y + (0.05 * skeletonHeight)))
             {
-                jointErrorDict.AddOrUpdate("AnkleRight", "Right ankle coming off floor.", (key, oldValue) => "Right ankle coming off floor.");
+                List<string> list = new List<string>
+                {
+                    "Right ankle coming off floor",
+                    "This could be a sign of tight calves, poor ankle mobility or core instability. See: https://woman.thenest.com/proper-squat-technique-heels-coming-off-floor-20267.html"
+                };
+                jointErrorDict.AddOrUpdate("AnkleRight", list, (key, oldValue) => list);
             }
 
-            if (skeleton.Joints[JointType.Head].Position.Z < (kneesZ - 0.07 * skeletonHeight))
+            if (skeleton.Joints[JointType.Head].Position.Z < (kneesZ - 0.13 * skeletonHeight))
             {
-                jointErrorDict.AddOrUpdate("Head", "Head coming too far forward.", (key, oldValue) => "Head coming too far forward.");
+                List<string> list = new List<string>
+                {
+                    "Head coming too far forward.",
+                    "Try keeping your chest upright and your upper back tight during the squat."
+                };
+                jointErrorDict.AddOrUpdate("Head", list, (key, oldValue) => list);
             }
 
             if (!(skeleton.Joints[JointType.HipRight].Position.X >= (skeleton.Joints[JointType.ShoulderCenter].Position.X + 0.02 * skeletonHeight)))
             {
-                jointErrorDict.AddOrUpdate("HipRight", "Right hip out of line", (key, oldValue) => "Right hip out of line");
+                List<string> list = new List<string>
+                {
+                    "Right hip out of line.",
+                    "This could be a sign of posterior weakness or anterior tighetness. See: https://breakingmuscle.com/fitness/squats-and-hip-dysfunction-2-common-problems-and-how-to-fix-them"
+                };
+                jointErrorDict.AddOrUpdate("HipRight", list, (key, oldValue) => list);
             }
 
             if (!(skeleton.Joints[JointType.HipLeft].Position.X <= skeleton.Joints[JointType.ShoulderCenter].Position.X - 0.02 * skeletonHeight))
             {
-                jointErrorDict.AddOrUpdate("HipLeft", "Left hip coming out of line", (key, oldValue) => "Left hip out of line");
+                List<string> list = new List<string>
+                {
+                    "Left hip out of line.",
+                    "This could be a sign of posterior weakness or anterior tighetness. See: https://breakingmuscle.com/fitness/squats-and-hip-dysfunction-2-common-problems-and-how-to-fix-them"
+                };
+                jointErrorDict.AddOrUpdate("HipLeft", list, (key, oldValue) => list);
             }
 
             if (skeleton.Joints[JointType.KneeLeft].Position.X - (0.03 * skeletonHeight) > (skeleton.Joints[JointType.AnkleLeft].Position.X ))
             {
-                jointErrorDict.AddOrUpdate("KneeLeft", "Left knee off line.", (key, oldValue) => "Left knee off line");
+                List<string> list = new List<string>
+                {
+                    "Left knee out of line.",
+                    "Here are some exercises to help prevent this: https://barbend.com/how-to-prevent-knee-valgus/"
+                };
+                jointErrorDict.AddOrUpdate("KneeLeft", list, (key, oldValue) => list);
             }
 
             if (skeleton.Joints[JointType.KneeRight].Position.X + (0.03 * skeletonHeight) < (skeleton.Joints[JointType.AnkleRight].Position.X ))
             {
-                jointErrorDict.AddOrUpdate("KneeRight", "Right knee off line.", (key, oldValue) => "Right knee off line");
+                List<string> list = new List<string>
+                {
+                    "Right knee out of line.",
+                    "Here are some exercises to help prevent this: https://barbend.com/how-to-prevent-knee-valgus/"
+                };
+                jointErrorDict.AddOrUpdate("KneeRight", list, (key, oldValue) => list);
             }
 
-            if ((skeleton.Joints[JointType.HipCenter].Position.Y - 0.25 * skeletonHeight) <= kneesY)
+            if ((skeleton.Joints[JointType.HipCenter].Position.Y - 0.2 * skeletonHeight) <= kneesY)
             {
                 depthAchieved = true;
                 if (jointErrorDict.ContainsKey("HipCentre"))
                 {
-                    String ignored;
+                    List<string> ignored;
                     jointErrorDict.TryRemove("HipCentre", out ignored);
                 }
             }
             else if (depthAchieved == false)
             {
-                jointErrorDict.AddOrUpdate("HipCentre", "Didn't achieve parallel depth", (key, oldValue) => "Didn't achieve parallel depth");
+                List<string> list = new List<string>
+                {
+                    "Didn't achieve parallel depth.",
+                    "If you can't get your hips to or below your knees, consider lightening the weight until you can."
+                };
+                jointErrorDict.AddOrUpdate("HipCentre", list, (key, oldValue) => list);
             }
 
             if (CheckStartingPos(skeleton))

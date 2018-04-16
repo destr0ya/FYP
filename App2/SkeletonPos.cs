@@ -87,6 +87,9 @@ namespace App2
                 //left hand
                 DepthImagePoint leftHdDepthPoint =
                     depth.MapFromSkeletonPoint(first.Joints[JointType.HandLeft].Position);
+                //spine
+                DepthImagePoint spineDepthPoint =
+                    depth.MapFromSkeletonPoint(first.Joints[JointType.Spine].Position);
                 //right hip
                 DepthImagePoint rightHpDepthPoint =
                     depth.MapFromSkeletonPoint(first.Joints[JointType.HipRight].Position);
@@ -139,6 +142,10 @@ namespace App2
                 ColorImagePoint leftHdColorPoint =
                     depth.MapToColorImagePoint(leftHdDepthPoint.X, leftHdDepthPoint.Y,
                     ColorImageFormat.RgbResolution640x480Fps30);
+                //spine
+                ColorImagePoint spineColorPoint =
+                    depth.MapToColorImagePoint(spineDepthPoint.X, spineDepthPoint.Y, 
+                    ColorImageFormat.RawBayerResolution640x480Fps30);
                 //right hip
                 ColorImagePoint rightHpColorPoint =
                     depth.MapToColorImagePoint(rightHpDepthPoint.X, rightHpDepthPoint.Y,
@@ -164,7 +171,7 @@ namespace App2
                     depth.MapToColorImagePoint(rightADepthPoint.X, rightADepthPoint.Y,
                     ColorImageFormat.RgbResolution640x480Fps30);
                 //left ankle
-                ColorImagePoint leftAnkleColorPoint =
+                ColorImagePoint leftAColorPoint =
                     depth.MapToColorImagePoint(leftADepthPoint.X, leftADepthPoint.Y,
                     ColorImageFormat.RgbResolution640x480Fps30);
 
@@ -176,13 +183,14 @@ namespace App2
                 jointPointDict.AddOrUpdate("ElbowLeft", leftEColorPoint, (key, oldValue) => leftEColorPoint);
                 jointPointDict.AddOrUpdate("HandRight", rightHdColorPoint, (key, oldValue) => rightHdColorPoint);
                 jointPointDict.AddOrUpdate("HandLeft", leftHdColorPoint, (key, oldValue) => leftHdColorPoint);
+                jointPointDict.AddOrUpdate("Spine", spineColorPoint, (key, oldValue) => spineColorPoint);
                 jointPointDict.AddOrUpdate("HipRight", rightHpColorPoint, (key, oldValue) => rightHpColorPoint);
                 jointPointDict.AddOrUpdate("HipLeft", leftHpColorPoint, (key, oldValue) => leftHpColorPoint);
                 jointPointDict.AddOrUpdate("HipCentre", centreHpColorPoint, (key, oldValue) => centreHpColorPoint);
                 jointPointDict.AddOrUpdate("KneeRight", rightKColorPoint, (key, oldValue) => rightKColorPoint);
                 jointPointDict.AddOrUpdate("KneeLeft", leftKColorPoint, (key, oldValue) => leftKColorPoint);
                 jointPointDict.AddOrUpdate("AnkleRight", rightAColorPoint, (key, oldValue) => rightAColorPoint);
-                jointPointDict.AddOrUpdate("AnkleLeft", leftAnkleColorPoint, (key, oldValue) => leftAnkleColorPoint);
+                jointPointDict.AddOrUpdate("AnkleLeft", leftAColorPoint, (key, oldValue) => leftAColorPoint);
             }        
         }
 

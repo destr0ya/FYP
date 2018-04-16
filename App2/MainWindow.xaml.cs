@@ -24,7 +24,7 @@ namespace App2
         private KinectSensor sensor;
         private String noKinectReady = "No Kinect connected.";
         ConcurrentDictionary<String, ColorImagePoint> dict = new ConcurrentDictionary<string, ColorImagePoint>();
-        ConcurrentDictionary<String, String> exerciseDict = new ConcurrentDictionary<string, string>();
+        ConcurrentDictionary<String, List<String>> exerciseDict = new ConcurrentDictionary<string, List<string>>();
         private readonly AutoResetEvent _isStopping = new AutoResetEvent(false);
         bool startPosFound = false;
         ExerciseObj exerciseObj;
@@ -103,7 +103,6 @@ namespace App2
                                 var wristRight = sd.Joints[JointType.WristRight];
                                 //var scaledRightHand = wristRight.ScaleTo((int)(SystemParameters.PrimaryScreenWidth), (int)(SystemParameters.PrimaryScreenHeight), SkeletonMaxX, SkeletonMaxY);
                                 var scaledRightHand = wristRight.ScaleTo(1500, 1500);
-
 
                                 var cursorX = (int)(scaledRightHand.Position.X + 10); 
                                 var cursorY = (int)(scaledRightHand.Position.Y + 10);
@@ -239,7 +238,7 @@ namespace App2
                         dict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
                         keys.Add(entry.Key);
                     }
-                    foreach (KeyValuePair<String, String> entry in exercise.GetDictionary())
+                    foreach (KeyValuePair<String, List<String>> entry in exercise.GetDictionary())
                     {
                         exerciseDict.AddOrUpdate(entry.Key, entry.Value, (key, oldValue) => entry.Value);
                     }
@@ -256,7 +255,7 @@ namespace App2
                                 dict[key] = realEntry.Value;
                             }
                         }
-                        foreach (KeyValuePair<String, String> realEntry in exercise.GetDictionary())
+                        foreach (KeyValuePair<String, List<String>> realEntry in exercise.GetDictionary())
                         {
                             if (key == realEntry.Key)
                             {
@@ -342,7 +341,7 @@ namespace App2
                 return;
             }
 
-            //Update dictionary - ONE THREAD
+            //Update dictionary
             Thread getDict = new Thread(() => GetDictionary(skeletonPos, squatMode));
             getDict.Start();
 
@@ -433,9 +432,9 @@ namespace App2
             //Environment.Exit(Environment.ExitCode);
 
             //Open new window
-            var results = new ResultsWindow();
+            var results = new ResultsWindow(exerciseObj.GetContent());
             //string resultsString = exerciseObj.Get
-            results.AddContent(exerciseObj.GetContent());
+           // results.AddContent(exerciseObj.GetContent());
             results.Show();
         }
     }
