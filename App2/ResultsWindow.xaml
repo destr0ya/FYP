@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:App2"
         mc:Ignorable="d"
         Title="ResultsWindow" Height="300" Width="700">
+    <!--Displays a DataGrid which is populated with the joint, how long it was spent in a poor postion, the problem and the solution.-->
     <Grid Name="resultsGrid">
         <DataGrid Name="dataGrid" AutoGenerateColumns="False" CanUserResizeColumns="True" CanUserAddRows="False" IsReadOnly="True" AlternatingRowBackground="LightSkyBlue" AlternationCount="2" FontSize="16" >
             <DataGrid.Columns>
