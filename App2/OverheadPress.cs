@@ -2,15 +2,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace App2
 {
+    // Class for the overhead press exercise which implements the Exercise interface. 
     class OverheadPress : Exercise
     {
         private KinectSensor sensor;
@@ -28,6 +25,7 @@ namespace App2
             return jointErrorDict;
         }
 
+        //Displays image of starting position for user to enter.
         public ImageSource ShowImage()
         {
             BitmapImage image = new BitmapImage(new Uri("/Images/SquatStart.png", UriKind.Relative));
@@ -42,6 +40,7 @@ namespace App2
             StartSkeletonStream(sensor);
         }
 
+        //Calls SensorSkeletonFrameReady with every refresh.
         public void StartSkeletonStream(KinectSensor sensor1)
         {
             this.sensor = sensor1;
@@ -50,6 +49,8 @@ namespace App2
             sensor.Start();
         }
 
+        //Sets the height of the user if it hasn't been set already and begins tracking if the starting
+        //position is found. 
         private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
@@ -82,12 +83,15 @@ namespace App2
             }
         }
 
+        //Sets skeleton height. 
         public float SetSkeletonHeight(Skeleton skeleton)
         {
             float footAverageY = (skeleton.Joints[JointType.FootRight].Position.Y + skeleton.Joints[JointType.FootLeft].Position.Y) / 2;
             return skeleton.Joints[JointType.Head].Position.Y - footAverageY + 0.1f;
         }
 
+        //Public CheckStartPosFound() for use in MainWindow.xaml.cs for displaying text, 
+        //changing dots colour etc. 
         public bool CheckStartPosFound()
         {
             if (startingPosFound)
@@ -97,6 +101,7 @@ namespace App2
             else return false;
         }
 
+        //Checks for the starting position. 
         internal static bool CheckStartingPos(Skeleton skeleton)
         {
             Joint head = skeleton.Joints[JointType.Head];
@@ -132,6 +137,9 @@ namespace App2
             }
         }
 
+        //Includes rules that the user needs to follow in order to perform the exercise correctly. 
+        //If a joint position is found to be incorrect, it adds the joint to the jointErrorDict with a list of strings. 
+        //The list of strings contains the problem and also a solution. 
         internal static void TrackPress(Skeleton skeleton)
         {
             jointErrorDict.Clear();

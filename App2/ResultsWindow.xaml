@@ -5,14 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:App2"
         mc:Ignorable="d"
-        Title="ResultsWindow" Height="500" Width="500">
+        Title="ResultsWindow" Height="300" Width="700">
     <Grid Name="resultsGrid">
-        <DataGrid Name="dataGrid" AutoGenerateColumns="False" CanUserResizeColumns="True" CanUserAddRows="False" IsReadOnly="True" Width="Auto">
+        <DataGrid Name="dataGrid" AutoGenerateColumns="False" CanUserResizeColumns="True" CanUserAddRows="False" IsReadOnly="True" AlternatingRowBackground="LightSkyBlue" AlternationCount="2" FontSize="16" >
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="column0" Header="Joint" Binding="{Binding joint}"/>
                 <DataGridTextColumn x:Name="column1" Header="Time spent" Binding="{Binding errorTime}"/>
-                <DataGridTextColumn x:Name="column2" Header="Potential Cause" Binding="{Binding problem}"/>
-                <DataGridTextColumn x:Name="column3" Header="Solution" Binding="{Binding solution}" />
+                <DataGridTextColumn x:Name="column2" Header="Potential Cause" Binding="{Binding problem}" Width="200">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn x:Name="column3" Header="Solution" Binding="{Binding solution}" Width="300">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

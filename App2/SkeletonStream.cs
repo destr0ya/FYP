@@ -1,20 +1,12 @@
 ﻿using Microsoft.Kinect;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace App2
 {
+    //This class displays a grey skeleton on a black background when the Skeleton Stream button is clicked. 
     class SkeletonStream
     {
-        //Variables for use with Skeleton stream
         private KinectSensor sensor = null;
         private const float RenderWidth = 525.0f;
         private const float RenderHeight = 350.0f;
@@ -183,7 +175,6 @@ namespace App2
         private Point SkeletonPointToScreen(SkeletonPoint skelpoint)
         {
             // Convert point to depth space.  
-            // We are not using depth directly, but we do want the points in our 640x480 output resolution.
             DepthImagePoint depthPoint = this.sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
             return new Point(depthPoint.X, depthPoint.Y);
         }
@@ -193,21 +184,18 @@ namespace App2
             Joint joint0 = skeleton.Joints[jointType0];
             Joint joint1 = skeleton.Joints[jointType1];
 
-            // If we can't find either of these joints, exit
             if (joint0.TrackingState == JointTrackingState.NotTracked ||
                 joint1.TrackingState == JointTrackingState.NotTracked)
             {
                 return;
             }
 
-            // Don't draw if both points are inferred
             if (joint0.TrackingState == JointTrackingState.Inferred &&
                 joint1.TrackingState == JointTrackingState.Inferred)
             {
                 return;
             }
 
-            // We assume all drawn bones are inferred unless BOTH joints are tracked
             Pen drawPen = this.inferredBonePen;
             if (joint0.TrackingState == JointTrackingState.Tracked && joint1.TrackingState == JointTrackingState.Tracked)
             {
