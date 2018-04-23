@@ -1,20 +1,13 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
 using System.Windows.Media.Imaging;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
 using System.Collections.Concurrent;
 
 namespace App2
 {
+    //Class for squat exercise which implements Exercise interface.
     class Squat : Exercise
     {
         private KinectSensor sensor;
@@ -29,6 +22,7 @@ namespace App2
             return jointErrorDict;
         }
 
+        //Displays starting position image for the user to follow.
         public ImageSource ShowImage()
         {
             BitmapImage image = new BitmapImage(new Uri("/Images/SquatStart.png", UriKind.Relative));
@@ -51,6 +45,7 @@ namespace App2
             sensor.Start();
         }
 
+        //Sets user height and if the starting position has been found, it tracks for the squat exercise.
         private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
@@ -133,13 +128,15 @@ namespace App2
             }
         }
 
+        //Includes rules that the user needs to follow in order to perform the exercise correctly. 
+        //If a joint position is found to be incorrect, it adds the joint to the jointErrorDict with a list of strings. 
+        //The list of strings contains the problem and also a solution. 
         internal static void TrackSquat(Skeleton skeleton)
         {
             jointErrorDict.Clear();
             //Average Knee Y Position
             float kneesY = (skeleton.Joints[JointType.KneeLeft].Position.Y + skeleton.Joints[JointType.KneeRight].Position.Y) / 2;
             float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
-
 
             if (skeleton.Joints[JointType.AnkleLeft].Position.Y > (skeleton.Joints[JointType.FootLeft].Position.Y + (0.05 * skeletonHeight)))
             {

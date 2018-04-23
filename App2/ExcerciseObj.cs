@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace App2
 {
+    //This is the class that accumulates the data for the ResultsWindow for when the user has finished the exercise. 
     class ExerciseObj
     {
         static string name;
@@ -19,6 +17,8 @@ namespace App2
             name = name1;
         }
 
+        //If the joint hasn't already been added, add it once with 1 count of 50ms. 
+        //Or else, update it with an extra count. 
         internal void Add(string key, List<string> v)
         {
             if (!count.ContainsKey(key))
@@ -31,6 +31,8 @@ namespace App2
             }
         }
 
+        //When this is called, if a joint has been in a bad position for more than two seconds, it
+        //will add it to the PassingObject to be displayed in the results window. 
         internal List<PassingObject> GetContent()
         {
             List<PassingObject> toPass = new List<PassingObject>();

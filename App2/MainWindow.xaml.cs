@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,15 +9,19 @@ using System.Threading;
 using System.ComponentModel;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Windows.Forms;
 using Coding4Fun.Kinect.Wpf;
 using System.Windows.Media.Imaging;
+using Microsoft.Speech.Recognition;
+using Microsoft.Speech.AudioFormat;
 
 namespace App2
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    /*
+     * Emma Meehan - 14358201 - 4BCT 
+     * April 2018
+     * This class contains the logic for the main window. Contains all the buttons and redirection to the business logic
+     * classes behind those buttons.
+    */ 
     public partial class MainWindow : Window
     {
         private KinectSensor sensor;
@@ -33,6 +36,10 @@ namespace App2
         private Rect _clickHoldingLastRect;
         private readonly Stopwatch _clickHoldingTimer = new Stopwatch();
 
+        private SpeechRecognitionEngine speechEngine;
+
+        //Checks for Kinect sensor, activates colour stream. Populates grammar with the
+        //word "finish" to trigger finish button. 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
             foreach (var potentialSensor in KinectSensor.KinectSensors)
@@ -52,6 +59,23 @@ namespace App2
                 this.sensor.DepthStream.Enable();
                 this.sensor.SkeletonStream.Enable();
 
+                RecognizerInfo ri = GetKinectRecognizer();
+                if (null != ri)
+                {
+                    this.speechEngine = new SpeechRecognitionEngine(ri.Id);
+                }
+                var gb = new GrammarBuilder { Culture = ri.Culture };
+                gb.Append("finish");
+                
+                var g = new Grammar(gb);
+                speechEngine.LoadGrammar(g);
+                speechEngine.SpeechRecognized += SpeechRecognized;
+
+                speechEngine.SetInputToAudioStream(
+                    sensor.AudioSource.Start(), new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
+
+                speechEngine.RecognizeAsync(RecognizeMode.Single);
+
                 sensor.AllFramesReady += SensorAllFramesReady;
             }
 
@@ -61,6 +85,7 @@ namespace App2
             }
         }
 
+        //Stops sensor and threads when the window is closed. 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (null != this.sensor)
@@ -70,11 +95,13 @@ namespace App2
             Environment.Exit(Environment.ExitCode);
         }
 
+        //Constantly calls SensorSkeletonFrameReady while there are frames ready. 
         void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
             SensorSkeletonFrameReady(e);
         }
 
+        //Main gesture recognition method. 
         void SensorSkeletonFrameReady(AllFramesReadyEventArgs e)
         {
             if (!startPosFound)
@@ -101,7 +128,6 @@ namespace App2
                                 BitmapImage image = new BitmapImage(new Uri("/Images/hand.png", UriKind.Relative));
                                 CursorImage.Source = image;
                                 var wristRight = sd.Joints[JointType.WristRight];
-                                //var scaledRightHand = wristRight.ScaleTo((int)(SystemParameters.PrimaryScreenWidth), (int)(SystemParameters.PrimaryScreenHeight), SkeletonMaxX, SkeletonMaxY);
                                 var scaledRightHand = wristRight.ScaleTo(1500, 1500);
 
                                 var cursorX = (int)(scaledRightHand.Position.X + 10); 
@@ -119,14 +145,11 @@ namespace App2
             }
         }
 
+        //Checks if the user has their hand over a trigger for more than two seconds. 
         private bool CheckForClickHold(Joint hand)
         {
-            // This does one handed click when you hover for the allotted time.  It gives a false positive when you hover accidentally.
             var x = hand.Position.X;
             var y = hand.Position.Y;
-
-            //var screenwidth = (int)SystemParameters.PrimaryScreenWidth;
-            //var screenheight = (int)SystemParameters.PrimaryScreenHeight;
             var screenwidth = 1500;
             var screenheight = 1500;
             var clickwidth = (int)(screenwidth * ClickHoldingRectThreshold);
@@ -167,6 +190,23 @@ namespace App2
             return false;
         }
 
+        //Main speech recognition method. 
+        private static RecognizerInfo GetKinectRecognizer()
+        {
+            foreach (RecognizerInfo recognizer in SpeechRecognitionEngine.InstalledRecognizers())
+            {
+                string value;
+                recognizer.AdditionalInfo.TryGetValue("Kinect", out value);
+                if ("True".Equals(value, StringComparison.OrdinalIgnoreCase) && "en-IE".Equals(recognizer.Culture.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return recognizer;
+                }
+            }
+
+            return null;
+        }
+
+        //Activates colour stream when this button is clicked. 
         private void ColourStreamClick(object sender, RoutedEventArgs e)
         {
             if (null == this.sensor)
@@ -183,6 +223,7 @@ namespace App2
             }
         }
 
+        //Activates depth stream when this button is clicked.
         private void DepthStreamClick(object sender, RoutedEventArgs e)
         {
             if (null == this.sensor)
@@ -199,6 +240,7 @@ namespace App2
             }
         }
 
+        //Activates skeleton stream when this button is clicked. 
         private void SkeletonStreamClick(object sender, RoutedEventArgs e)
         {
             if (null == sensor)
@@ -215,6 +257,10 @@ namespace App2
             }
         }
 
+        //Main thread for the system, occuring every 50 milliseconds. It handles two dictionaries simultaneously: 
+        //dict and exerciseDict. dict contains the string name for the joint and it's ColorImagePoint, set in
+        //SkeletonPos.cs. exerciseDict contains the string name for the joint, and whether it should be coloured
+        //green or red. This is handled in the respective class for that exercise. 
         internal void GetDictionary(SkeletonPos skel, Exercise exercise)
         {
             TimeSpan waitInterval = TimeSpan.FromMilliseconds(50);
@@ -264,6 +310,7 @@ namespace App2
                         }
                     }
                 }
+                //If the user is tracked but the starting position isn't found, the joints are coloured in gold.
                 foreach (KeyValuePair<String, ColorImagePoint> item in dict)
                     if (!exercise.CheckStartPosFound())
                     {
@@ -276,23 +323,25 @@ namespace App2
                     }
                     else if (exercise.CheckStartPosFound())
                     {
+                        //If the exerciseDict contains that joint, it means that joint is in a bad position and is coloured red.
+                        if (exerciseDict.ContainsKey(item.Key))
                         {
-                            if (exerciseDict.ContainsKey(item.Key))
+                            this.Dispatcher.Invoke(() =>
                             {
-                                this.Dispatcher.Invoke(() =>
-                                {
-                                    DrawDots(Brushes.Red, item.Key, item.Value);
-                                    exerciseObj.Add(item.Key, exerciseDict[item.Key]);
-                                });
-                            } else
-                            {
-                                this.Dispatcher.Invoke(() =>
-                                {
-                                    DisplayTextOnce("Starting Position Found - Go!");
-                                    DrawDots(Brushes.SpringGreen, item.Key, item.Value);
-                                });
-                            }
+                                DrawDots(Brushes.Red, item.Key, item.Value);
+                                exerciseObj.Add(item.Key, exerciseDict[item.Key]);
+                            });
                         }
+                        //Otherwise, joint is in an okay position and is coloured green as it remains so.
+                        else
+                        {
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                DisplayTextOnce("Starting Position Found - Go!");
+                                DrawDots(Brushes.SpringGreen, item.Key, item.Value);
+                            });
+                        }
+
                     }
             }
         }
@@ -327,6 +376,8 @@ namespace App2
             }
         }
 
+        //Triggered when squat button is clicked. Instantiates class for squat and begins checking. 
+        //Activiates main thread with the squat exercise. 
         private void Squat(object sender, RoutedEventArgs e)
         {
             Squat squatMode = new Squat();
@@ -356,6 +407,8 @@ namespace App2
             OHPButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
         }
 
+        //Triggered when the overhead press button is clicked. Instantiates class for overhead press and begins checking. 
+        //Activiates main thread with the overhead press exercise. 
         private void OverheadPress(object sender, RoutedEventArgs e)
         {
             OverheadPress overheadPress = new OverheadPress();
@@ -384,6 +437,8 @@ namespace App2
 
         }
 
+        //Triggered when deadlift button is clicked. Instantiates class for deadlift and begins checking. 
+        //Activiates main thread with the deadlift exercise. 
         private void Deadlift(object sender, RoutedEventArgs e)
         {
             Deadlift deadlift = new Deadlift();
@@ -411,6 +466,7 @@ namespace App2
             OHPButton.Background = new SolidColorBrush(Color.FromRgb(110, 8, 178));
         }
 
+        //Draws the dots for each joints at the particular point on screen, with the correct colour.
         private void DrawDots(Brush colour, String joint, ColorImagePoint point)
         {
             foreach (Object obj in Canvas.Children)
@@ -426,16 +482,39 @@ namespace App2
             }
         }
 
+        //Triggers finish button when speech is recognised. 
+        private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            // Speech utterance confidence below which we treat speech as if it hadn't been heard
+            const double ConfidenceThreshold = 0.3;
+
+            if (e.Result.Confidence >= ConfidenceThreshold)
+            {
+                if (exerciseObj == null)
+                {
+                    throw new Exception("No exercise tracked");
+                }
+                else
+                {
+                    var results = new ResultsWindow(exerciseObj.GetContent());
+                    results.Show();
+                }
+            }
+        }
+
+        //When finish button is triggered, creates results window. 
         private void Finished(object sender, RoutedEventArgs e)
         {
-            //Stop threads
-            //Environment.Exit(Environment.ExitCode);
-
-            //Open new window
-            var results = new ResultsWindow(exerciseObj.GetContent());
-            //string resultsString = exerciseObj.Get
-           // results.AddContent(exerciseObj.GetContent());
-            results.Show();
+            if (exerciseObj == null)
+            {
+                throw new Exception("No exercise tracked");
+            }
+            else
+            {
+                //Open new window
+                var results = new ResultsWindow(exerciseObj.GetContent());
+                results.Show();
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.Kinect;
 
 namespace App2
 {
+    //Deadlift implementation - similar to squat and overhead press.
     internal class Deadlift : Exercise
     {
         private KinectSensor sensor;
@@ -128,14 +129,17 @@ namespace App2
             }
         }
 
+        //Includes rules that the user needs to follow in order to perform the exercise correctly. 
+        //If a joint position is found to be incorrect, it adds the joint to the jointErrorDict with a list of strings. 
+        //The list of strings contains the problem and also a solution. 
         internal static void TrackDeadlift(Skeleton skeleton)
         {
             jointErrorDict.Clear();
 
             float kneesZ = (skeleton.Joints[JointType.KneeLeft].Position.Z + skeleton.Joints[JointType.KneeRight].Position.Z) / 2;
             float hipsZ = (skeleton.Joints[JointType.HipLeft].Position.Z + skeleton.Joints[JointType.HipRight].Position.Z) / 2;
-            //Change to shoulders and knees
-            if (skeleton.Joints[JointType.Head].Position.Z > (hipsZ - 0.13 * skeletonHeight))
+
+            if (skeleton.Joints[JointType.Head].Position.Z < (hipsZ - 0.2 * skeletonHeight))
             {
                 List<string> list = new List<string>
                 {
@@ -185,8 +189,6 @@ namespace App2
             float xVector1 = (skeleton.Joints[JointType.Spine].Position.X - skeleton.Joints[JointType.ShoulderCenter].Position.X);
             float yVector1 = (skeleton.Joints[JointType.Spine].Position.Y - skeleton.Joints[JointType.ShoulderCenter].Position.Y);
             float zVector1 = (skeleton.Joints[JointType.Spine].Position.Z - skeleton.Joints[JointType.ShoulderCenter].Position.Z);
-
-            //Debug.WriteLine("X: " + Math.Abs(xVector0 % xVector1) + "/r/nY: " + Math.Abs(yVector0 % yVector1) + "/r/nZ: " + Math.Abs(zVector0 % zVector1));
 
             if (Math.Abs(xVector0 % xVector1) > 0.007 || Math.Abs(yVector0 % yVector1) > 0.07 || Math.Abs(zVector0 % zVector1) > 0.05)
             {
