@@ -1,16 +1,13 @@
 ﻿using Microsoft.Kinect;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace App2
 {
+    //Displays DepthStream to screen when button is clicked. 
+    //Creates an intensity level based on how far away the point is. 
     class DepthStream
     {
         private DepthImagePixel[] depthPixels;
@@ -24,9 +21,7 @@ namespace App2
             sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
 
             this.depthPixels = new DepthImagePixel[sensor.DepthStream.FramePixelDataLength];
-
             this.colorPixels = new byte[sensor.DepthStream.FramePixelDataLength * sizeof(int)];
-
             this.colorBitmap = new WriteableBitmap(sensor.DepthStream.FrameWidth, sensor.DepthStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
 
             sensor.DepthFrameReady += this.SensorDepthFrameReady;
@@ -62,16 +57,6 @@ namespace App2
                     {
                         // Get the depth for this pixel
                         short depth = depthPixels[i].Depth;
-
-                        // To convert to a byte, we're discarding the most-significant
-                        // rather than least-significant bits.
-                        // We're preserving detail, although the intensity will "wrap."
-                        // Values outside the reliable depth range are mapped to 0 (black).
-
-                        // Note: Using conditionals in this loop could degrade performance.
-                        // Consider using a lookup table instead when writing production code.
-                        // See the KinectDepthViewer class used by the KinectExplorer sample
-                        // for a lookup table example.
                         byte intensity = (byte)(depth >= minDepth && depth <= maxDepth ? depth : 0);
 
                         // Write out blue byte
@@ -83,12 +68,10 @@ namespace App2
                         // Write out red byte                        
                         this.colorPixels[colorPixelIndex++] = intensity;
 
-                        // We're outputting BGR, the last byte in the 32 bits is unused so skip it
-                        // If we were outputting BGRA, we would write alpha here.
                         ++colorPixelIndex;
                     }
 
-                    // Write the pixel data into our bitmap
+                    // Write the pixel data into the bitmap
                     this.colorBitmap.WritePixels(
                         new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
                         this.colorPixels,
